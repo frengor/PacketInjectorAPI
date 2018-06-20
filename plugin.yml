@@ -1,0 +1,4 @@
+name: PacketInjectorAPI
+main: com.fren_gor.packetUtils.Main
+version: 1.1
+author: fren_gor
