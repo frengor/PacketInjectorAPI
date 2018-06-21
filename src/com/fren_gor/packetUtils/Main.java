@@ -10,6 +10,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import com.fren_gor.packetUtils.libraries.Metrics;
 import com.fren_gor.packetUtils.libraries.org.inventivetalent.update.spiget.SpigetUpdate;
 import com.fren_gor.packetUtils.libraries.org.inventivetalent.update.spiget.UpdateCallback;
 import com.fren_gor.packetUtils.libraries.org.inventivetalent.update.spiget.comparator.VersionComparator;
@@ -20,7 +21,7 @@ public class Main extends JavaPlugin implements Listener {
 	private PacketInjector pki;
 	private PacketInjector_v1_7 pki_1_7;
 	private boolean forceRestart = false;
-	private boolean v1_7 = false;
+	public static boolean v1_7 = false;
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onJoin(PlayerJoinEvent e) {
@@ -48,7 +49,7 @@ public class Main extends JavaPlugin implements Listener {
 		if (ReflectionUtil.getVersion().startsWith("v1_7")) {
 			v1_7 = true;
 		}
-
+		
 		new BukkitRunnable() {
 
 			@Override
@@ -99,13 +100,13 @@ public class Main extends JavaPlugin implements Listener {
 				// downloadUrl - URL to the download
 				// hasDirectDownload - whether the update is available for a
 				//// direct download on spiget.org
-				Bukkit.getConsoleSender().sendMessage("§ePacketInjectorAPI is updating!");
+				Bukkit.getConsoleSender().sendMessage("Â§ePacketInjectorAPI is updating!");
 				if (hasDirectDownload) {
 					if (updater.downloadUpdate()) {
 						// Update downloaded, will be loaded when the server
 						// restarts
 						Bukkit.getConsoleSender()
-								.sendMessage("§bUpdate downloaded, will be loaded when the server restarts");
+								.sendMessage("Â§bUpdate downloaded, will be loaded when the server restarts");
 					} else {
 						// Update failed
 						getLogger().warning("Update download failed, reason is " + updater.getFailReason());
@@ -116,9 +117,11 @@ public class Main extends JavaPlugin implements Listener {
 			@Override
 			public void upToDate() {
 				//// Plugin is up-to-date
-				Bukkit.getConsoleSender().sendMessage("§bPacketInjectorAPI is up to date!");
+				Bukkit.getConsoleSender().sendMessage("Â§bPacketInjectorAPI is up to date!");
 			}
 		});
+		
+		new Metrics(this);
 
 	}
 
