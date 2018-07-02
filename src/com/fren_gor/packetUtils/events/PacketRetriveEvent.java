@@ -5,29 +5,21 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-import io.netty.channel.ChannelHandlerContext;
-
 public class PacketRetriveEvent extends Event implements Cancellable {
 
 	private final Player p;
-	private final ChannelHandlerContext c;
 	private final Object packet;
 
 	public Player getPlayer() {
 		return p;
 	}
 
-	public ChannelHandlerContext getChannelHandlerContext() {
-		return c;
-	}
-
 	public Object getPacket() {
 		return packet;
 	}
 	
-	public PacketRetriveEvent(Player p, ChannelHandlerContext c, Object packet) {
+	public PacketRetriveEvent(Player p, Object packet) {
 		this.p = p;
-		this.c = c;
 		this.packet = packet;
 	}
 

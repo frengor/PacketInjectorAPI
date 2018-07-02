@@ -15,10 +15,11 @@ import com.fren_gor.packetUtils.libraries.org.inventivetalent.update.spiget.Spig
 import com.fren_gor.packetUtils.libraries.org.inventivetalent.update.spiget.UpdateCallback;
 import com.fren_gor.packetUtils.libraries.org.inventivetalent.update.spiget.comparator.VersionComparator;
 import com.fren_gor.packetUtils.v1_7.PacketInjector_v1_7;
+import com.fren_gor.packetUtils.v1_8.PacketInjector_v1_8;
 
 public class Main extends JavaPlugin implements Listener {
 
-	private PacketInjector pki;
+	private PacketInjector_v1_8 pki;
 	private PacketInjector_v1_7 pki_1_7;
 	private boolean forceRestart = false;
 	public static boolean v1_7 = false;
@@ -49,25 +50,25 @@ public class Main extends JavaPlugin implements Listener {
 		if (ReflectionUtil.getVersion().startsWith("v1_7")) {
 			v1_7 = true;
 		}
-		
+
 		new BukkitRunnable() {
 
 			@Override
 			public void run() {
 
 				if (v1_7) {
-					
+
 					pki_1_7 = new PacketInjector_v1_7();
-					
+
 					for (Player p : Bukkit.getOnlinePlayers()) {
 
 						pki_1_7.addPlayer(p);
 
 					}
 				} else {
-					
-					pki = new PacketInjector();
-					
+
+					pki = new PacketInjector_v1_8();
+
 					for (Player p : Bukkit.getOnlinePlayers()) {
 
 						pki.addPlayer(p);
@@ -76,7 +77,7 @@ public class Main extends JavaPlugin implements Listener {
 				}
 
 			}
-		}.runTaskLater(this, 1);
+		}.runTaskLater(this, 10);
 
 		Bukkit.getPluginManager().registerEvents(this, this);
 
@@ -100,13 +101,13 @@ public class Main extends JavaPlugin implements Listener {
 				// downloadUrl - URL to the download
 				// hasDirectDownload - whether the update is available for a
 				//// direct download on spiget.org
-				Bukkit.getConsoleSender().sendMessage("Â§ePacketInjectorAPI is updating!");
+				Bukkit.getConsoleSender().sendMessage("§ePacketInjectorAPI is updating!");
 				if (hasDirectDownload) {
 					if (updater.downloadUpdate()) {
 						// Update downloaded, will be loaded when the server
 						// restarts
 						Bukkit.getConsoleSender()
-								.sendMessage("Â§bUpdate downloaded, will be loaded when the server restarts");
+								.sendMessage("§bUpdate downloaded, will be loaded when the server restarts");
 					} else {
 						// Update failed
 						getLogger().warning("Update download failed, reason is " + updater.getFailReason());
@@ -117,16 +118,26 @@ public class Main extends JavaPlugin implements Listener {
 			@Override
 			public void upToDate() {
 				//// Plugin is up-to-date
-				Bukkit.getConsoleSender().sendMessage("Â§bPacketInjectorAPI is up to date!");
+				Bukkit.getConsoleSender().sendMessage("§bPacketInjectorAPI is up to date!");
 			}
 		});
-		
+
 		new Metrics(this);
 
 	}
 
 	@Override
 	public void onDisable() {
+
+		for (Player p : Bukkit.getOnlinePlayers()) {
+
+			if (v1_7) {
+				pki_1_7.removePlayer(p);
+			} else {
+				pki.removePlayer(p);
+			}
+
+		}
 
 		if (forceRestart)
 			Bukkit.getServer().shutdown();

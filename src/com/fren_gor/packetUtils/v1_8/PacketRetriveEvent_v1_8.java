@@ -1,25 +1,33 @@
-package com.fren_gor.packetUtils.events;
+package com.fren_gor.packetUtils.v1_8;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-public class PacketSendEvent extends Event implements Cancellable {
+import io.netty.channel.ChannelHandlerContext;
 
-	public final Player p;
-	public final Object packet;
+public class PacketRetriveEvent_v1_8 extends Event implements Cancellable {
+
+	private final Player p;
+	private final ChannelHandlerContext c;
+	private final Object packet;
 
 	public Player getPlayer() {
 		return p;
 	}
 
+	public ChannelHandlerContext getChannelHandlerContext() {
+		return c;
+	}
+
 	public Object getPacket() {
 		return packet;
 	}
-
-	public PacketSendEvent(Player p, Object packet) {
+	
+	public PacketRetriveEvent_v1_8(Player p, ChannelHandlerContext c, Object packet) {
 		this.p = p;
+		this.c = c;
 		this.packet = packet;
 	}
 

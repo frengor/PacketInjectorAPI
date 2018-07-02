@@ -8,27 +8,41 @@ import javax.annotation.Nullable;
 
 import org.bukkit.Bukkit;
 
+/**
+ * Reflection class by fren_gor
+ * Give me credits if you use it in one of your plugin
+ * 
+ * @author fren_gor
+ *
+ */
 public final class ReflectionUtil {
 
+	/**
+	 * Invoke method in c class
+	 * @param object The object where the method is invoked
+	 * @param method The name of the method
+	 * @param parameters The object uses as parameters
+	 * @return What the method return. If the method is void, return null
+	 */
 	@Nullable
-	public static Object invoke(Object c, String method, Object... o) {
+	public static Object invoke(Object object, String method, Object... parameters) {
 
 		Method m = null;
 
-		Class<?>[] classes = new Class<?>[o.length];
+		Class<?>[] classes = new Class<?>[parameters.length];
 
-		for (int i = 0; i < o.length; i++) {
-			classes[i] = o[i].getClass();
+		for (int i = 0; i < parameters.length; i++) {
+			classes[i] = parameters[i].getClass();
 		}
 
 		try {
-			m = c.getClass().getDeclaredMethod(method, classes);
+			m = object.getClass().getDeclaredMethod(method, classes);
 		} catch (NoSuchMethodException | SecurityException e) {
 			try {
-				m = c.getClass().getSuperclass().getDeclaredMethod(method, classes);
+				m = object.getClass().getSuperclass().getDeclaredMethod(method, classes);
 			} catch (NoSuchMethodException | SecurityException ex) {
 				try {
-					m = c.getClass().getSuperclass().getSuperclass().getDeclaredMethod(method, classes);
+					m = object.getClass().getSuperclass().getSuperclass().getDeclaredMethod(method, classes);
 				} catch (NoSuchMethodException | SecurityException exx) {
 
 					exx.printStackTrace();
@@ -41,7 +55,7 @@ public final class ReflectionUtil {
 		try {
 			boolean b = m.isAccessible();
 			m.setAccessible(true);
-			o1 = m.invoke(c, o);
+			o1 = m.invoke(object, parameters);
 			m.setAccessible(b);
 		} catch (IllegalAccessException | InvocationTargetException e) {
 			e.printStackTrace();
@@ -50,19 +64,26 @@ public final class ReflectionUtil {
 		return o1;
 	}
 
+	/**
+	 * Set a field
+	 * @param object The object where the field is set
+	 * @param field The name of the field
+	 * @param newValue The new value of the field
+	 * @return The object
+	 */
 	@Nullable
-	public static Object setField(Object c, String field, Object o) {
+	public static Object setField(Object object, String field, Object newValue) {
 
 		Field f;
 
 		try {
-			f = c.getClass().getDeclaredField(field);
+			f = object.getClass().getDeclaredField(field);
 		} catch (NoSuchFieldException | SecurityException e) {
 			try {
-				f = c.getClass().getSuperclass().getDeclaredField(field);
+				f = object.getClass().getSuperclass().getDeclaredField(field);
 			} catch (SecurityException | NoSuchFieldException ex) {
 				try {
-					f = c.getClass().getSuperclass().getSuperclass().getDeclaredField(field);
+					f = object.getClass().getSuperclass().getSuperclass().getDeclaredField(field);
 				} catch (NoSuchFieldException | SecurityException exx) {
 					exx.printStackTrace();
 					return null;
@@ -74,30 +95,36 @@ public final class ReflectionUtil {
 		try {
 			boolean b = f.isAccessible();
 			f.setAccessible(true);
-			f.set(c, o);
+			f.set(object, newValue);
 			f.setAccessible(b);
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 			return null;
 		}
 
-		return c;
+		return object;
 
 	}
 
+	/**
+	 * Get a field value
+	 * @param object The object from which the represented field's value is to be extracted
+	 * @param field The field name
+	 * @return The field value
+	 */
 	@Nullable
-	public static Object getField(Object c, String field) {
+	public static Object getField(Object object, String field) {
 
 		Field f;
 
 		try {
-			f = c.getClass().getDeclaredField(field);
+			f = object.getClass().getDeclaredField(field);
 		} catch (NoSuchFieldException | SecurityException e) {
 			try {
-				f = c.getClass().getSuperclass().getDeclaredField(field);
+				f = object.getClass().getSuperclass().getDeclaredField(field);
 			} catch (SecurityException | NoSuchFieldException ex) {
 				try {
-					f = c.getClass().getSuperclass().getSuperclass().getDeclaredField(field);
+					f = object.getClass().getSuperclass().getSuperclass().getDeclaredField(field);
 				} catch (NoSuchFieldException | SecurityException exx) {
 					exx.printStackTrace();
 					return null;
@@ -108,7 +135,7 @@ public final class ReflectionUtil {
 		try {
 			boolean b = f.isAccessible();
 			f.setAccessible(true);
-			o = f.get(c);
+			o = f.get(object);
 			f.setAccessible(b);
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
@@ -119,16 +146,27 @@ public final class ReflectionUtil {
 
 	}
 
+	/**
+	 * Cast a object to a class
+	 * @param object The object to cast
+	 * @param clazz The class
+	 * @return The casted object
+	 */
 	@Nullable
-	public static Object cast(Object o, Class<?> c) {
+	public static Object cast(Object object, Class<?> clazz) {
 		try {
-			return c.cast(o);
+			return clazz.cast(object);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
 
+	/**
+	 * @author michel_0
+	 * @param name The class name
+	 * @return The NMS class
+	 */
 	public static Class<?> getNMSClass(String name) {
 		try {
 			return Class.forName(
@@ -140,6 +178,11 @@ public final class ReflectionUtil {
 		}
 	}
 
+	/**
+	 * @author michel_0
+	 * @param name The class name
+	 * @return The CraftBukkit class
+	 */
 	public static Class<?> getCBClass(String name) {
 		try {
 			return Class.forName(
@@ -151,10 +194,18 @@ public final class ReflectionUtil {
 		}
 	}
 	
+	/**
+	 * Get the server version
+	 * @return The server version
+	 */
 	public static String getVersion(){
 		return Bukkit.getServer().getClass().getName().split("\\.")[3];
 	}
 	
+	/**
+	 * Check if the server is in 1.7
+	 * @return If the server is in 1.7
+	 */
 	public static boolean versionIs1_7(){
 		return Bukkit.getServer().getClass().getName().split("\\.")[3].startsWith("v1_7");
 	}
