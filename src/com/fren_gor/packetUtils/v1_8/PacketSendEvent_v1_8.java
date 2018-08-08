@@ -10,10 +10,11 @@ import io.netty.channel.ChannelPromise;
 
 public class PacketSendEvent_v1_8 extends Event implements Cancellable {
 
-	public final Player p;
-	public final ChannelHandlerContext c;
-	public final Object packet;
-	public final ChannelPromise promise;
+	private final Player p;
+	private final ChannelHandlerContext c;
+	private final Object packet;
+	private final ChannelPromise promise;
+	private final String packetName;
 
 	public Player getPlayer() {
 		return p;
@@ -36,6 +37,11 @@ public class PacketSendEvent_v1_8 extends Event implements Cancellable {
 		this.c = c;
 		this.packet = packet;
 		this.promise = promise;
+		this.packetName = packet.getClass().getSimpleName();
+	}
+
+	public String getPacketName() {
+		return packetName;
 	}
 
 	private static final HandlerList handlers = new HandlerList();

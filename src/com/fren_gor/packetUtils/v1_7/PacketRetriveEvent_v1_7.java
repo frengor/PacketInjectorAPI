@@ -12,6 +12,7 @@ public class PacketRetriveEvent_v1_7 extends Event implements Cancellable {
 	private final Player p;
 	private final ChannelHandlerContext c;
 	private final Object packet;
+	private final String packetName;
 
 	public Player getPlayer() {
 		return p;
@@ -29,6 +30,11 @@ public class PacketRetriveEvent_v1_7 extends Event implements Cancellable {
 		this.p = p;
 		this.c = c;
 		this.packet = packet;
+		this.packetName = packet.getClass().getSimpleName();
+	}
+
+	public String getPacketName() {
+		return packetName;
 	}
 
 	private static final HandlerList handlers = new HandlerList();

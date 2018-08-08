@@ -7,8 +7,9 @@ import org.bukkit.event.HandlerList;
 
 public class PacketSendEvent extends Event implements Cancellable {
 
-	public final Player p;
-	public final Object packet;
+	private final Player p;
+	private final Object packet;
+	private final String packetName;
 
 	public Player getPlayer() {
 		return p;
@@ -21,6 +22,11 @@ public class PacketSendEvent extends Event implements Cancellable {
 	public PacketSendEvent(Player p, Object packet) {
 		this.p = p;
 		this.packet = packet;
+		this.packetName = packet.getClass().getSimpleName();
+	}
+
+	public String getPacketName() {
+		return packetName;
 	}
 
 	private static final HandlerList handlers = new HandlerList();
