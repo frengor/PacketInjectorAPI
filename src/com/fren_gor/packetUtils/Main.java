@@ -1,6 +1,11 @@
 package com.fren_gor.packetUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -19,34 +24,48 @@ import com.fren_gor.packetUtils.v1_8.PacketInjector_v1_8;
 
 public class Main extends JavaPlugin implements Listener {
 
-	private PacketInjector_v1_8 pki;
-	private PacketInjector_v1_7 pki_1_7;
+	private PacketInjector pki;
+
+	public PacketInjector getPki() {
+		return pki;
+	}
+
 	private boolean forceRestart = false;
 	public static boolean v1_7 = false;
+	private boolean enabled = false;
+
+	private static Main instance;
+
+	public static Main getInstance() {
+		return instance;
+	}
+
+	public PacketInjector getPacketInjector() {
+		return pki;
+	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onJoin(PlayerJoinEvent e) {
 
-		if (v1_7)
-			pki_1_7.addPlayer(e.getPlayer());
-		else
-			pki.addPlayer(e.getPlayer());
+		if (pki == null)
+			return;
+		pki.addPlayer(e.getPlayer());
 
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onQuit(PlayerQuitEvent e) {
 
-		if (v1_7)
-			pki_1_7.removePlayer(e.getPlayer());
-		else
-			pki.removePlayer(e.getPlayer());
+		if (pki == null)
+			return;
+		
+		pki.removePlayer(e.getPlayer());
 
 	}
 
 	@Override
 	public void onEnable() {
-
+		instance = this;
 		if (ReflectionUtil.getVersion().startsWith("v1_7")) {
 			v1_7 = true;
 		}
@@ -58,22 +77,17 @@ public class Main extends JavaPlugin implements Listener {
 
 				if (v1_7) {
 
-					pki_1_7 = new PacketInjector_v1_7();
+					pki = new PacketInjector_v1_7();
 
-					for (Player p : Bukkit.getOnlinePlayers()) {
-
-						pki_1_7.addPlayer(p);
-
-					}
 				} else {
 
 					pki = new PacketInjector_v1_8();
+				}
 
-					for (Player p : Bukkit.getOnlinePlayers()) {
+				for (Player p : Bukkit.getOnlinePlayers()) {
 
-						pki.addPlayer(p);
+					pki.addPlayer(p);
 
-					}
 				}
 
 			}
@@ -131,11 +145,7 @@ public class Main extends JavaPlugin implements Listener {
 
 		for (Player p : Bukkit.getOnlinePlayers()) {
 
-			if (v1_7) {
-				pki_1_7.removePlayer(p);
-			} else {
-				pki.removePlayer(p);
-			}
+			pki.removePlayer(p);
 
 		}
 

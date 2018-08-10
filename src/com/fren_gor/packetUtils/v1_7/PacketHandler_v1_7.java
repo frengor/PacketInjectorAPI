@@ -3,6 +3,7 @@ package com.fren_gor.packetUtils.v1_7;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import com.fren_gor.packetUtils.PacketHandler;
 import com.fren_gor.packetUtils.events.PacketRetriveEvent;
 import com.fren_gor.packetUtils.events.PacketSendEvent;
 
@@ -10,9 +11,15 @@ import net.minecraft.util.io.netty.channel.ChannelDuplexHandler;
 import net.minecraft.util.io.netty.channel.ChannelHandlerContext;
 import net.minecraft.util.io.netty.channel.ChannelPromise;
 
-public class PacketHandler_v1_7 extends ChannelDuplexHandler {
+public class PacketHandler_v1_7 extends ChannelDuplexHandler implements PacketHandler {
 
 	private Player p;
+
+	private ChannelHandlerContext c;
+
+	public synchronized ChannelHandlerContext getChannelHandlerContext() {
+		return c;
+	}
 
 	public PacketHandler_v1_7(final Player p) {
 		this.p = p;
@@ -43,6 +50,12 @@ public class PacketHandler_v1_7 extends ChannelDuplexHandler {
 
 	@Override
 	public void channelRead(ChannelHandlerContext c, Object m) throws Exception {
+
+		synchronized (this) {
+
+			this.c = c;
+
+		}
 
 		PacketRetriveEvent_v1_7 e = new PacketRetriveEvent_v1_7(p, c, m);
 

@@ -2,14 +2,20 @@ package com.fren_gor.packetUtils.v1_7;
 
 import java.lang.reflect.Field;
 
+import javax.annotation.Nullable;
+
 import org.bukkit.entity.Player;
 
+import com.fren_gor.packetUtils.PacketHandler;
+import com.fren_gor.packetUtils.PacketInjector;
 import com.fren_gor.packetUtils.Reflection;
 import com.fren_gor.packetUtils.ReflectionUtil;
+import com.fren_gor.packetUtils.v1_8.PacketHandler_v1_8;
 
+import net.minecraft.util.io.netty.channel.ChannelHandlerContext;
 import net.minecraft.util.io.netty.channel.Channel;
 
-public class PacketInjector_v1_7 {
+public class PacketInjector_v1_7 implements PacketInjector {
 
 	private Field EntityPlayer_playerConnection;
 	private Class<?> PlayerConnection;
@@ -53,7 +59,8 @@ public class PacketInjector_v1_7 {
 		}
 	}
 
-	public PacketHandler_v1_7 addPlayer(Player p) {
+	@Override
+	public PacketHandler addPlayer(Player p) {
 		try {
 			Channel ch = getChannel(getNetworkManager(Reflection.getNmsPlayer(p)));
 			if (ch.pipeline().get("PacketInjector") == null) {
@@ -67,6 +74,7 @@ public class PacketInjector_v1_7 {
 		return null;
 	}
 
+	@Override
 	public void removePlayer(Player p) {
 		try {
 			Channel ch = getChannel(getNetworkManager(Reflection.getNmsPlayer(p)));
@@ -78,7 +86,21 @@ public class PacketInjector_v1_7 {
 		}
 	}
 
-	private Object getNetworkManager(Object ep) throws Exception {
+	@Override
+	@Nullable
+	public PacketHandler getHandler(Player p) {
+		Channel ch = null;
+		try {
+			ch = getChannel(getNetworkManager(Reflection.getNmsPlayer(p)));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return (PacketHandler) ch.pipeline().get("PacketInjector");
+	}
+
+	@Override
+	public Object getNetworkManager(Object ep) throws Exception {
 		return Reflection.getFieldValue1(PlayerConnection_networkManager,
 				Reflection.getFieldValue1(EntityPlayer_playerConnection, ep));
 	}
@@ -91,5 +113,16 @@ public class PacketInjector_v1_7 {
 			t.printStackTrace();
 		}
 		return ch;
+	}
+
+	public ChannelHandlerContext getChannelhandler(Player p) {
+
+		return ((PacketHandler_v1_7) getHandler(p)).getChannelHandlerContext();
+
+	}
+
+	@Override
+	public Class<?> getNetworkManager() {
+		return NetworkManager;
 	}
 }

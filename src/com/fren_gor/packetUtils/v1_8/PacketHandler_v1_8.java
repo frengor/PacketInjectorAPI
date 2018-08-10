@@ -3,6 +3,7 @@ package com.fren_gor.packetUtils.v1_8;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import com.fren_gor.packetUtils.PacketHandler;
 import com.fren_gor.packetUtils.events.PacketRetriveEvent;
 import com.fren_gor.packetUtils.events.PacketSendEvent;
 import com.fren_gor.packetUtils.v1_8.PacketRetriveEvent_v1_8;
@@ -12,9 +13,15 @@ import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 
-public class PacketHandler_v1_8 extends ChannelDuplexHandler {
+public class PacketHandler_v1_8 extends ChannelDuplexHandler implements PacketHandler {
 
 	private Player p;
+
+	private ChannelHandlerContext c;
+	
+	public synchronized ChannelHandlerContext getChannelHandlerContext() {
+		return c;
+	}
 
 	public PacketHandler_v1_8(final Player p) {
 		this.p = p;
@@ -30,7 +37,7 @@ public class PacketHandler_v1_8 extends ChannelDuplexHandler {
 		if (e.isCancelled()) {
 			return;
 		}
-		
+
 		PacketSendEvent event = new PacketSendEvent(p, m);
 
 		Bukkit.getPluginManager().callEvent(event);
@@ -46,6 +53,10 @@ public class PacketHandler_v1_8 extends ChannelDuplexHandler {
 	@Override
 	public void channelRead(ChannelHandlerContext c, Object m) throws Exception {
 
+		synchronized (this) {
+			this.c = c;
+		}
+
 		PacketRetriveEvent_v1_8 e = new PacketRetriveEvent_v1_8(p, c, m);
 
 		Bukkit.getPluginManager().callEvent(e);
@@ -53,7 +64,7 @@ public class PacketHandler_v1_8 extends ChannelDuplexHandler {
 		if (e.isCancelled()) {
 			return;
 		}
-		
+
 		PacketRetriveEvent event = new PacketRetriveEvent(p, m);
 
 		Bukkit.getPluginManager().callEvent(event);
