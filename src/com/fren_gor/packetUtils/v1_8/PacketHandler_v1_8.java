@@ -6,8 +6,6 @@ import org.bukkit.entity.Player;
 import com.fren_gor.packetUtils.PacketHandler;
 import com.fren_gor.packetUtils.events.PacketRetriveEvent;
 import com.fren_gor.packetUtils.events.PacketSendEvent;
-import com.fren_gor.packetUtils.v1_8.PacketRetriveEvent_v1_8;
-import com.fren_gor.packetUtils.v1_8.PacketSendEvent_v1_8;
 
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;

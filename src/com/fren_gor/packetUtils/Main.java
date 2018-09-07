@@ -1,11 +1,6 @@
 package com.fren_gor.packetUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -58,42 +53,44 @@ public class Main extends JavaPlugin implements Listener {
 
 		if (pki == null)
 			return;
-		
+
 		pki.removePlayer(e.getPlayer());
 
 	}
 
 	@Override
-	public void onEnable() {
-		instance = this;
-		if (ReflectionUtil.getVersion().startsWith("v1_7")) {
+	public void onLoad() {
+		if (ReflectionUtil.getCompleteVersion().startsWith("v1_7")) {
 			v1_7 = true;
 		}
+		if (v1_7) {
 
+			pki = new PacketInjector_v1_7();
+
+		} else {
+
+			pki = new PacketInjector_v1_8();
+		}
+	}
+
+	@Override
+	public void onEnable() {
+		instance = this;
 		new BukkitRunnable() {
 
 			@Override
 			public void run() {
-
-				if (v1_7) {
-
-					pki = new PacketInjector_v1_7();
-
-				} else {
-
-					pki = new PacketInjector_v1_8();
-				}
 
 				for (Player p : Bukkit.getOnlinePlayers()) {
 
 					pki.addPlayer(p);
 
 				}
+				
+				Bukkit.getPluginManager().registerEvents(instance, instance);
 
 			}
 		}.runTaskLater(this, 10);
-
-		Bukkit.getPluginManager().registerEvents(this, this);
 
 		if (Bukkit.getPluginManager().isPluginEnabled("ProtocolLib")) {
 

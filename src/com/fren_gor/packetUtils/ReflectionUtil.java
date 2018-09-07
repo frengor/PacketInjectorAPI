@@ -1,5 +1,6 @@
 package com.fren_gor.packetUtils;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -8,9 +9,11 @@ import javax.annotation.Nullable;
 
 import org.bukkit.Bukkit;
 
+import lombok.Getter;
+
 /**
- * Reflection class by fren_gor
- * Give me credits if you use it in one of your plugin
+ * Reflection class by fren_gor Give me credits if you use it in one of your
+ * plugin
  * 
  * @author fren_gor
  *
@@ -18,10 +21,40 @@ import org.bukkit.Bukkit;
 public final class ReflectionUtil {
 
 	/**
+	 * Build a new class getting the proper constructor from parameters
+	 * @param clazz The class of the object of witch you want the instance
+	 * @param parameters The contructors parameters
+	 * @return The new instance
+	 */
+	public static Object newInstance(Class<?> clazz, Object... parameters) {
+
+		Class<?>[] classes = new Class<?>[parameters.length];
+
+		for (int i = 0; i < parameters.length; i++) {
+			classes[i] = parameters[i].getClass();
+		}
+
+		try {
+			Constructor<?> c = clazz.getDeclaredConstructor(classes);
+			c.setAccessible(true);
+			return c.newInstance(parameters);
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+				| NoSuchMethodException | SecurityException e) {
+			e.printStackTrace();
+			return null;
+		}
+
+	}
+
+	/**
 	 * Invoke method in c class
-	 * @param object The object where the method is invoked
-	 * @param method The name of the method
-	 * @param parameters The object uses as parameters
+	 * 
+	 * @param object
+	 *            The object where the method is invoked
+	 * @param method
+	 *            The name of the method
+	 * @param parameters
+	 *            The object uses as parameters
 	 * @return What the method return. If the method is void, return null
 	 */
 	@Nullable
@@ -38,18 +71,8 @@ public final class ReflectionUtil {
 		try {
 			m = object.getClass().getDeclaredMethod(method, classes);
 		} catch (NoSuchMethodException | SecurityException e) {
-			try {
-				m = object.getClass().getSuperclass().getDeclaredMethod(method, classes);
-			} catch (NoSuchMethodException | SecurityException ex) {
-				try {
-					m = object.getClass().getSuperclass().getSuperclass().getDeclaredMethod(method, classes);
-				} catch (NoSuchMethodException | SecurityException exx) {
-
-					exx.printStackTrace();
-
-				}
-
-			}
+			e.printStackTrace();
+			return null;
 		}
 		Object o1;
 		try {
@@ -66,9 +89,13 @@ public final class ReflectionUtil {
 
 	/**
 	 * Set a field
-	 * @param object The object where the field is set
-	 * @param field The name of the field
-	 * @param newValue The new value of the field
+	 * 
+	 * @param object
+	 *            The object where the field is set
+	 * @param field
+	 *            The name of the field
+	 * @param newValue
+	 *            The new value of the field
 	 * @return The object
 	 */
 	@Nullable
@@ -79,17 +106,8 @@ public final class ReflectionUtil {
 		try {
 			f = object.getClass().getDeclaredField(field);
 		} catch (NoSuchFieldException | SecurityException e) {
-			try {
-				f = object.getClass().getSuperclass().getDeclaredField(field);
-			} catch (SecurityException | NoSuchFieldException ex) {
-				try {
-					f = object.getClass().getSuperclass().getSuperclass().getDeclaredField(field);
-				} catch (NoSuchFieldException | SecurityException exx) {
-					exx.printStackTrace();
-					return null;
-				}
-
-			}
+			e.printStackTrace();
+			return null;
 		}
 
 		try {
@@ -108,8 +126,12 @@ public final class ReflectionUtil {
 
 	/**
 	 * Get a field value
-	 * @param object The object from which the represented field's value is to be extracted
-	 * @param field The field name
+	 * 
+	 * @param object
+	 *            The object from which the represented field's value is to be
+	 *            extracted
+	 * @param field
+	 *            The field name
 	 * @return The field value
 	 */
 	@Nullable
@@ -123,12 +145,8 @@ public final class ReflectionUtil {
 			try {
 				f = object.getClass().getSuperclass().getDeclaredField(field);
 			} catch (SecurityException | NoSuchFieldException ex) {
-				try {
-					f = object.getClass().getSuperclass().getSuperclass().getDeclaredField(field);
-				} catch (NoSuchFieldException | SecurityException exx) {
-					exx.printStackTrace();
-					return null;
-				}
+				ex.printStackTrace();
+				return null;
 			}
 		}
 		Object o = null;
@@ -148,8 +166,11 @@ public final class ReflectionUtil {
 
 	/**
 	 * Cast a object to a class
-	 * @param object The object to cast
-	 * @param clazz The class
+	 * 
+	 * @param object
+	 *            The object to cast
+	 * @param clazz
+	 *            The class
 	 * @return The casted object
 	 */
 	@Nullable
@@ -164,7 +185,8 @@ public final class ReflectionUtil {
 
 	/**
 	 * @author michel_0
-	 * @param name The class name
+	 * @param name
+	 *            The class name
 	 * @return The NMS class
 	 */
 	public static Class<?> getNMSClass(String name) {
@@ -180,7 +202,8 @@ public final class ReflectionUtil {
 
 	/**
 	 * @author michel_0
-	 * @param name The class name
+	 * @param name
+	 *            The class name
 	 * @return The CraftBukkit class
 	 */
 	public static Class<?> getCBClass(String name) {
@@ -193,20 +216,27 @@ public final class ReflectionUtil {
 			return null;
 		}
 	}
-	
+
+	@Getter
+	private static int version = Integer.valueOf(Bukkit.getServer().getClass().getName().split("\\.")[3].split("_")[1]);
+	@Getter
+	private static int release = Integer.valueOf(Bukkit.getServer().getClass().getName().split("\\.")[3].split("R")[1]);
+
 	/**
 	 * Get the server version
+	 * 
 	 * @return The server version
 	 */
-	public static String getVersion(){
+	public static String getCompleteVersion() {
 		return Bukkit.getServer().getClass().getName().split("\\.")[3];
 	}
-	
+
 	/**
 	 * Check if the server is in 1.7
+	 * 
 	 * @return If the server is in 1.7
 	 */
-	public static boolean versionIs1_7(){
+	public static boolean versionIs1_7() {
 		return Bukkit.getServer().getClass().getName().split("\\.")[3].startsWith("v1_7");
 	}
 

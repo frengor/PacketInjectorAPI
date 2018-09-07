@@ -5,6 +5,8 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
+import com.fren_gor.packetUtils.ReflectionUtil;
+
 import net.minecraft.util.io.netty.channel.ChannelHandlerContext;
 
 public class PacketRetriveEvent_v1_7 extends Event implements Cancellable {
@@ -25,7 +27,7 @@ public class PacketRetriveEvent_v1_7 extends Event implements Cancellable {
 	public Object getPacket() {
 		return packet;
 	}
-	
+
 	public PacketRetriveEvent_v1_7(Player p, ChannelHandlerContext c, Object packet) {
 		this.p = p;
 		this.c = c;
@@ -58,6 +60,18 @@ public class PacketRetriveEvent_v1_7 extends Event implements Cancellable {
 	@Override
 	public void setCancelled(boolean cancel) {
 		cancelled = cancel;
+
+	}
+
+	public void setValue(String field, Object value) {
+
+		ReflectionUtil.setField(packet, field, value);
+
+	}
+
+	public Object getValue(String field) {
+
+		return ReflectionUtil.getField(packet, field);
 
 	}
 

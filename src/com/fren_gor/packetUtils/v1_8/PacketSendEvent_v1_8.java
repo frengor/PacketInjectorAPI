@@ -5,6 +5,8 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
+import com.fren_gor.packetUtils.ReflectionUtil;
+
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 
@@ -68,4 +70,15 @@ public class PacketSendEvent_v1_8 extends Event implements Cancellable {
 
 	}
 
+	public void setValue(String field, Object value) {
+
+		ReflectionUtil.setField(packet, field, value);
+
+	}
+
+	public Object getValue(String field) {
+
+		return ReflectionUtil.getField(packet, field);
+
+	}
 }

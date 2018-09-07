@@ -10,10 +10,9 @@ import com.fren_gor.packetUtils.PacketHandler;
 import com.fren_gor.packetUtils.PacketInjector;
 import com.fren_gor.packetUtils.Reflection;
 import com.fren_gor.packetUtils.ReflectionUtil;
-import com.fren_gor.packetUtils.v1_8.PacketHandler_v1_8;
 
-import net.minecraft.util.io.netty.channel.ChannelHandlerContext;
 import net.minecraft.util.io.netty.channel.Channel;
+import net.minecraft.util.io.netty.channel.ChannelHandlerContext;
 
 public class PacketInjector_v1_7 implements PacketInjector {
 
@@ -34,7 +33,7 @@ public class PacketInjector_v1_7 implements PacketInjector {
 
 			NetworkManager = Reflection.getClass("{nms}.NetworkManager");
 			String s = "";
-			switch (ReflectionUtil.getVersion()) {
+			switch (ReflectionUtil.getCompleteVersion()) {
 			case "v1_7_R2":
 			case "v1_7_R3":
 			case "v1_7_R4":

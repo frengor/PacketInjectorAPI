@@ -1,8 +1,6 @@
 package com.fren_gor.packetUtils;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 import org.bukkit.entity.Player;
 
@@ -10,8 +8,6 @@ import com.fren_gor.packetUtils.v1_7.PacketHandler_v1_7;
 import com.fren_gor.packetUtils.v1_7.PacketInjector_v1_7;
 import com.fren_gor.packetUtils.v1_8.PacketHandler_v1_8;
 import com.fren_gor.packetUtils.v1_8.PacketInjector_v1_8;
-
-import io.netty.util.concurrent.GenericFutureListener;
 
 /**
  * Util class by fren_gor Give me credits if you use it in one of your plugin

@@ -1,7 +1,6 @@
 package com.fren_gor.packetUtils.v1_8;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import javax.annotation.Nullable;
@@ -36,7 +35,7 @@ public class PacketInjector_v1_8 implements PacketInjector {
 
 			NetworkManager = Reflection.getClass("{nms}.NetworkManager");
 			String s = "";
-			switch (ReflectionUtil.getVersion()) {
+			switch (ReflectionUtil.getCompleteVersion()) {
 			case "1_7_R2":
 			case "1_7_R3":
 			case "1_7_R4":

@@ -5,6 +5,8 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
+import com.fren_gor.packetUtils.ReflectionUtil;
+
 import net.minecraft.util.io.netty.channel.ChannelHandlerContext;
 import net.minecraft.util.io.netty.channel.ChannelPromise;
 
@@ -65,6 +67,18 @@ public class PacketSendEvent_v1_7 extends Event implements Cancellable {
 	@Override
 	public void setCancelled(boolean cancel) {
 		cancelled = cancel;
+
+	}
+
+	public void setValue(String field, Object value) {
+
+		ReflectionUtil.setField(packet, field, value);
+
+	}
+
+	public Object getValue(String field) {
+
+		return ReflectionUtil.getField(packet, field);
 
 	}
 
