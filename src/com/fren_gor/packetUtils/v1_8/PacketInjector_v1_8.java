@@ -1,7 +1,6 @@
 package com.fren_gor.packetUtils.v1_8;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
 import javax.annotation.Nullable;
 
@@ -14,7 +13,6 @@ import com.fren_gor.packetUtils.ReflectionUtil;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.DefaultChannelPipeline;
 
 public class PacketInjector_v1_8 implements PacketInjector {
 
@@ -115,22 +113,6 @@ public class PacketInjector_v1_8 implements PacketInjector {
 			t.printStackTrace();
 		}
 		return ch;
-	}
-
-	private static Method newContext;
-
-	static {
-
-		for (Method m : DefaultChannelPipeline.class.getDeclaredMethods()) {
-
-			if (m.getName().equals("newContext")) {
-				newContext = m;
-				m.setAccessible(true);
-				break;
-			}
-
-		}
-
 	}
 
 	public ChannelHandlerContext getChannelhandler(Player p) {

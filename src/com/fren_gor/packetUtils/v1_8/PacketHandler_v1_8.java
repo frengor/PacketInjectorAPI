@@ -16,7 +16,7 @@ public class PacketHandler_v1_8 extends ChannelDuplexHandler implements PacketHa
 	private Player p;
 
 	private ChannelHandlerContext c;
-	
+
 	public synchronized ChannelHandlerContext getChannelHandlerContext() {
 		return c;
 	}
@@ -32,7 +32,7 @@ public class PacketHandler_v1_8 extends ChannelDuplexHandler implements PacketHa
 
 		Bukkit.getPluginManager().callEvent(e);
 
-		if (e.isCancelled()) {
+		if (e.isCancelled() && !e.getPacketName().contains("Disconnect")) {
 			return;
 		}
 
@@ -40,7 +40,7 @@ public class PacketHandler_v1_8 extends ChannelDuplexHandler implements PacketHa
 
 		Bukkit.getPluginManager().callEvent(event);
 
-		if (event.isCancelled()) {
+		if (event.isCancelled() && !event.getPacketName().contains("Disconnect")) {
 			return;
 		}
 
@@ -59,7 +59,7 @@ public class PacketHandler_v1_8 extends ChannelDuplexHandler implements PacketHa
 
 		Bukkit.getPluginManager().callEvent(e);
 
-		if (e.isCancelled()) {
+		if (e.isCancelled() && !e.getPacketName().contains("Disconnect")) {
 			return;
 		}
 
@@ -67,7 +67,7 @@ public class PacketHandler_v1_8 extends ChannelDuplexHandler implements PacketHa
 
 		Bukkit.getPluginManager().callEvent(event);
 
-		if (event.isCancelled()) {
+		if (event.isCancelled() && !event.getPacketName().contains("Disconnect")) {
 			return;
 		}
 

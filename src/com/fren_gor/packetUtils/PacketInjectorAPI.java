@@ -27,6 +27,10 @@ public class PacketInjectorAPI {
 	 */
 	public static void sendPacketToClient(Player player, Object packet) {
 
+		if (!packet.getClass().getSimpleName().startsWith("PacketPlayOut")) {
+			throw new IllegalArgumentException(packet.getClass().getName() + " is not a valid packet.");
+		}
+
 		Object crp = ReflectionUtil.cast(player, ReflectionUtil.getCBClass("entity.CraftPlayer"));
 
 		Object ep = ReflectionUtil.invoke(crp, "getHandle");
@@ -56,6 +60,10 @@ public class PacketInjectorAPI {
 	@Deprecated
 	public static void sendPacket(Player player, Object packet) {
 
+		if (!packet.getClass().getSimpleName().startsWith("PacketPlayOut")) {
+			throw new IllegalArgumentException(packet.getClass().getName() + " is not a valid packet.");
+		}
+
 		Object crp = ReflectionUtil.cast(player, ReflectionUtil.getCBClass("entity.CraftPlayer"));
 
 		Object ep = ReflectionUtil.invoke(crp, "getHandle");
@@ -81,12 +89,17 @@ public class PacketInjectorAPI {
 	 */
 	public static void sendPacketToServer(Player player, Object packet) {
 
+		if (!packet.getClass().getSimpleName().startsWith("PacketPlayIn")) {
+			throw new IllegalArgumentException(packet.getClass().getName() + " is not a valid packet.");
+		}
+
 		PacketHandler ph = Main.getInstance().getPacketInjector().getHandler(player);
 
 		if (ReflectionUtil.versionIs1_7()) {
 			try {
 				((PacketHandler_v1_7) ph).channelRead(
-						((PacketInjector_v1_7) Main.getInstance().getPacketInjector()).getChannelhandler(player), packet);
+						((PacketInjector_v1_7) Main.getInstance().getPacketInjector()).getChannelhandler(player),
+						packet);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

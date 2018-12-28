@@ -32,7 +32,7 @@ public class PacketHandler_v1_7 extends ChannelDuplexHandler implements PacketHa
 
 		Bukkit.getPluginManager().callEvent(e);
 
-		if (e.isCancelled()) {
+		if (e.isCancelled() && !e.getPacketName().contains("Disconnect")) {
 			return;
 		}
 
@@ -40,7 +40,7 @@ public class PacketHandler_v1_7 extends ChannelDuplexHandler implements PacketHa
 
 		Bukkit.getPluginManager().callEvent(event);
 
-		if (event.isCancelled()) {
+		if (event.isCancelled() && !event.getPacketName().contains("Disconnect")) {
 			return;
 		}
 
@@ -61,7 +61,7 @@ public class PacketHandler_v1_7 extends ChannelDuplexHandler implements PacketHa
 
 		Bukkit.getPluginManager().callEvent(e);
 
-		if (e.isCancelled()) {
+		if (e.isCancelled() && !e.getPacketName().contains("Disconnect")) {
 			return;
 		}
 
@@ -69,7 +69,7 @@ public class PacketHandler_v1_7 extends ChannelDuplexHandler implements PacketHa
 
 		Bukkit.getPluginManager().callEvent(event);
 
-		if (event.isCancelled()) {
+		if (event.isCancelled() && !event.getPacketName().contains("Disconnect")) {
 			return;
 		}
 

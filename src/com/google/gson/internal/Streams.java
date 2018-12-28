@@ -16,6 +16,10 @@
 
 package com.google.gson.internal;
 
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.Writer;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonNull;
@@ -25,9 +29,6 @@ import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.google.gson.stream.MalformedJsonException;
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.Writer;
 
 /**
  * Reads and writes GSON parse trees over streams.

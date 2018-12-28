@@ -1,6 +1,6 @@
 name: PacketInjectorAPI
 main: com.fren_gor.packetUtils.Main
-version: 1.7
+version: 1.2.1
 author: fren_gor
 
 api-version: 1.13

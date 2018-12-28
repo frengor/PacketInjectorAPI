@@ -16,12 +16,13 @@
 
 package com.google.gson;
 
-import com.google.gson.internal.$Gson$Preconditions;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
+
+import com.google.gson.internal.$Gson$Preconditions;
 
 /**
  * A data object that stores attributes of a field.
