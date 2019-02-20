@@ -12,8 +12,9 @@ import org.bukkit.Bukkit;
 import lombok.Getter;
 
 /**
- * Reflection class by fren_gor Give me credits if you use it in one of your
- * plugin
+ * Reflection class by fren_gor
+ * Give me credits if you use it in one of your
+ * plugins
  * 
  * @author fren_gor
  *
