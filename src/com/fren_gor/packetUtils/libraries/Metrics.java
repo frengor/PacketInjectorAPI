@@ -101,8 +101,8 @@ public class Metrics {
 			config.addDefault("logFailedRequests", false);
 
 			// Inform the server owners about bStats
-			config.options()
-					.header("bStats collects some data for plugin authors like how many servers are using their plugins.\n"
+			config.options().header(
+					"bStats collects some data for plugin authors like how many servers are using their plugins.\n"
 							+ "To honor their work, you should not disable it.\n"
 							+ "This has nearly no effect on the server performance!\n"
 							+ "Check out https://bStats.org/ to learn more :)")
@@ -155,8 +155,8 @@ public class Metrics {
 	 */
 	private void startSubmitting() {
 		final Timer timer = new Timer(true); // We use a timer cause the Bukkit
-												// scheduler is affected by
-												// server lags
+											 // scheduler is affected by
+											 // server lags
 		timer.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
@@ -168,12 +168,7 @@ public class Metrics {
 				// thread, so we have to use the Bukkit scheduler
 				// Don't be afraid! The connection to the bStats server is still
 				// async, only the stats collection is sync ;)
-				Bukkit.getScheduler().runTask(plugin, new Runnable() {
-					@Override
-					public void run() {
-						submitData();
-					}
-				});
+				Bukkit.getScheduler().runTask(plugin, (Runnable) () -> submitData());
 			}
 		}, 1000 * 60 * 5, 1000 * 60 * 30);
 		// Submit the data every 30 minutes, first time after 5 minutes to give
@@ -196,7 +191,7 @@ public class Metrics {
 
 		data.put("pluginName", pluginName); // Append the name of the plugin
 		data.put("pluginVersion", pluginVersion); // Append the version of the
-													// plugin
+													 // plugin
 		JSONArray customCharts = new JSONArray();
 		for (CustomChart customChart : charts) {
 			// Add the data of the custom charts
@@ -280,18 +275,14 @@ public class Metrics {
 		data.put("plugins", pluginData);
 
 		// Create a new thread for the connection to the bStats server
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					// Send the data
-					sendData(data);
-				} catch (Exception e) {
-					// Something went wrong! :(
-					if (logFailedRequests) {
-						plugin.getLogger().log(Level.WARNING, "Could not submit plugin stats of " + plugin.getName(),
-								e);
-					}
+		new Thread(() -> {
+			try {
+				// Send the data
+				sendData(data);
+			} catch (Exception e) {
+				// Something went wrong! :(
+				if (logFailedRequests) {
+					plugin.getLogger().log(Level.WARNING, "Could not submit plugin stats of " + plugin.getName(), e);
 				}
 			}
 		}).start();
@@ -322,16 +313,16 @@ public class Metrics {
 		connection.addRequestProperty("Accept", "application/json");
 		connection.addRequestProperty("Connection", "close");
 		connection.addRequestProperty("Content-Encoding", "gzip"); // We gzip
-																	// our
-																	// request
+																	 // our
+																	 // request
 		connection.addRequestProperty("Content-Length", String.valueOf(compressedData.length));
 		connection.setRequestProperty("Content-Type", "application/json"); // We
-																			// send
-																			// our
-																			// data
-																			// in
-																			// JSON
-																			// format
+																			 // send
+																			 // our
+																			 // data
+																			 // in
+																			 // JSON
+																			 // format
 		connection.setRequestProperty("User-Agent", "MC-Server/" + B_STATS_VERSION);
 
 		// Send data
@@ -342,7 +333,7 @@ public class Metrics {
 		outputStream.close();
 
 		connection.getInputStream().close(); // We don't care about the response
-												// - Just send our data :)
+											 // - Just send our data :)
 	}
 
 	/**

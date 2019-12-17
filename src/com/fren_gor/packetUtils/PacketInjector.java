@@ -11,7 +11,7 @@ public abstract interface PacketInjector {
 	public abstract PacketHandler addPlayer(Player p);
 
 	public abstract void removePlayer(Player p);
-	
+
 	public abstract PacketHandler getHandler(Player p);
 
 }

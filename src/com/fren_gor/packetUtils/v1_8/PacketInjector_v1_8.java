@@ -34,22 +34,16 @@ public class PacketInjector_v1_8 implements PacketInjector {
 			NetworkManager = Reflection.getClass("{nms}.NetworkManager");
 			String s = "";
 			switch (ReflectionUtil.getCompleteVersion()) {
-			case "1_7_R2":
-			case "1_7_R3":
-			case "1_7_R4":
-				s = "m";
-				break;
-			case "1_8_R1":
-				s = "i";
-				break;
-			case "1_7_R1":
-			case "1_8_R2":
-				s = "k";
-				break;
+				case "1_8_R1":
+					s = "i";
+					break;
+				case "1_8_R2":
+					s = "k";
+					break;
 
-			default:
-				s = "channel";
-				break;
+				default:
+					s = "channel";
+					break;
 			}
 			k = Reflection.getField(NetworkManager, s);
 
@@ -117,7 +111,7 @@ public class PacketInjector_v1_8 implements PacketInjector {
 
 	public ChannelHandlerContext getChannelhandler(Player p) {
 
-		return ((PacketHandler_v1_8)getHandler(p)).getChannelHandlerContext();
+		return ((PacketHandler_v1_8) getHandler(p)).getChannelHandlerContext();
 	}
 
 	@Override

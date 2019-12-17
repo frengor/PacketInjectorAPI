@@ -73,7 +73,8 @@ public class SpigetUpdate extends SpigetUpdateAbstract {
 		final File updateFile = new File(updateFolder, pluginFile.getName());
 
 		Properties properties = getUpdaterProperties();
-		boolean allowExternalDownload = properties != null && properties.containsKey("externalDownloads") && Boolean.valueOf(properties.getProperty("externalDownloads"));
+		boolean allowExternalDownload = properties != null && properties.containsKey("externalDownloads")
+				&& Boolean.valueOf(properties.getProperty("externalDownloads"));
 
 		if (!allowExternalDownload && latestResourceInfo.external) {
 			failReason = DownloadFailReason.EXTERNAL_DISALLOWED;
@@ -105,11 +106,14 @@ public class SpigetUpdate extends SpigetUpdateAbstract {
 		Properties properties = new Properties();
 		if (!file.exists()) {
 			try {
-				if (!file.createNewFile()) { return null; }
+				if (!file.createNewFile()) {
+					return null;
+				}
 				properties.setProperty("externalDownloads", "false");
-				properties.store(new FileWriter(file), "Configuration for the Spiget auto-updater. https://spiget.org | https://github.com/InventivetalentDev/SpigetUpdater\n"
-						+ "Use 'externalDownloads' if you want to auto-download resources hosted on external sites\n"
-						+ "");
+				properties.store(new FileWriter(file),
+						"Configuration for the Spiget auto-updater. https://spiget.org | https://github.com/InventivetalentDev/SpigetUpdater\n"
+								+ "Use 'externalDownloads' if you want to auto-download resources hosted on external sites\n"
+								+ "");
 			} catch (Exception ignored) {
 				return null;
 			}
@@ -128,7 +132,9 @@ public class SpigetUpdate extends SpigetUpdateAbstract {
 	 * @return the plugin file name
 	 */
 	private File getPluginFile() {
-		if (!(this.plugin instanceof JavaPlugin)) { return null; }
+		if (!(this.plugin instanceof JavaPlugin)) {
+			return null;
+		}
 		try {
 			Method method = JavaPlugin.class.getDeclaredMethod("getFile");
 			method.setAccessible(true);
@@ -139,13 +145,7 @@ public class SpigetUpdate extends SpigetUpdateAbstract {
 	}
 
 	public enum DownloadFailReason {
-		NOT_CHECKED,
-		NO_UPDATE,
-		NO_DOWNLOAD,
-		NO_PLUGIN_FILE,
-		NO_UPDATE_FOLDER,
-		EXTERNAL_DISALLOWED,
-		UNKNOWN;
+		NOT_CHECKED, NO_UPDATE, NO_DOWNLOAD, NO_PLUGIN_FILE, NO_UPDATE_FOLDER, EXTERNAL_DISALLOWED, UNKNOWN;
 	}
 
 }

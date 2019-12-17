@@ -13,11 +13,24 @@ public class PacketRetriveEvent_v1_7 extends Event implements Cancellable {
 
 	private final Player p;
 	private final ChannelHandlerContext c;
-	private final Object packet;
+	private Object packet;
 	private final String packetName;
 
 	public Player getPlayer() {
 		return p;
+	}
+
+	public Object setPacket(Object packet) {
+
+		if (packet.getClass().getName().equals(this.packet.getClass().getName())) {
+			Object p = this.packet;
+			this.packet = packet;
+			return p;
+		}
+
+		throw new IllegalArgumentException(
+				"Old packet class doesn't match the new one: " + this.packet.getClass().getName());
+
 	}
 
 	public ChannelHandlerContext getChannelHandlerContext() {

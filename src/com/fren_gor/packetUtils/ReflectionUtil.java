@@ -12,8 +12,8 @@ import org.bukkit.Bukkit;
 import lombok.Getter;
 
 /**
- * Reflection class by fren_gor
- * Give me credits if you use it in one of your plugins
+ * Reflection class by fren_gor Give me credits if you use it in one of your
+ * plugin
  * 
  * @author fren_gor
  *
@@ -22,8 +22,11 @@ public final class ReflectionUtil {
 
 	/**
 	 * Build a new class getting the proper constructor from parameters
-	 * @param clazz The class of the object of witch you want the instance
-	 * @param parameters The contructors parameters
+	 * 
+	 * @param clazz
+	 *            The class of the object of witch you want the instance
+	 * @param parameters
+	 *            The contructors parameters
 	 * @return The new instance
 	 */
 	public static Object newInstance(Class<?> clazz, Object... parameters) {

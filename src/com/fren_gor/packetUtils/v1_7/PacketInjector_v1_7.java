@@ -34,22 +34,18 @@ public class PacketInjector_v1_7 implements PacketInjector {
 			NetworkManager = Reflection.getClass("{nms}.NetworkManager");
 			String s = "";
 			switch (ReflectionUtil.getCompleteVersion()) {
-			case "v1_7_R2":
-			case "v1_7_R3":
-			case "v1_7_R4":
-				s = "m";
-				break;
-			case "v1_8_R1":
-				s = "i";
-				break;
-			case "v1_7_R1":
-			case "v1_8_R2":
-				s = "k";
-				break;
+				case "v1_7_R2":
+				case "v1_7_R3":
+				case "v1_7_R4":
+					s = "m";
+					break;
+				case "v1_7_R1":
+					s = "k";
+					break;
 
-			default:
-				s = "channel";
-				break;
+				default:
+					s = "channel";
+					break;
 			}
 			k = Reflection.getField(NetworkManager, s);
 

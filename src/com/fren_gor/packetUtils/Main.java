@@ -1,17 +1,11 @@
 package com.fren_gor.packetUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerKickEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -30,12 +24,10 @@ public class Main extends JavaPlugin implements Listener {
 		return pki;
 	}
 
-	//private static List<UUID> kicked = new ArrayList<>(10);
+	// private static List<UUID> kicked = new ArrayList<>(10);
 
 	private boolean forceRestart = false;
 	public static boolean v1_7 = false;
-	private boolean enabled = false;
-
 	private static Main instance;
 
 	public static Main getInstance() {
@@ -54,32 +46,29 @@ public class Main extends JavaPlugin implements Listener {
 		pki.addPlayer(e.getPlayer());
 
 	}
-/*
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void onKick(PlayerKickEvent e) {
 
-		if (pki == null)
-			return;
-
-		pki.removePlayer(e.getPlayer());
-		kicked.add(e.getPlayer().getUniqueId());
-
-	}
-
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void onQuit(PlayerQuitEvent e) {
-
-		if (pki == null)
-			return;
-
-		if (kicked.contains(e.getPlayer().getUniqueId())) {
-			kicked.remove(e.getPlayer().getUniqueId());
-			return;
-		}
-
-		pki.removePlayer(e.getPlayer());
-
-	}*/
+	/*
+	 * @EventHandler(priority = EventPriority.LOWEST) public void
+	 * onKick(PlayerKickEvent e) {
+	 * 
+	 * if (pki == null) return;
+	 * 
+	 * pki.removePlayer(e.getPlayer()); kicked.add(e.getPlayer().getUniqueId());
+	 * 
+	 * }
+	 * 
+	 * @EventHandler(priority = EventPriority.LOWEST) public void
+	 * onQuit(PlayerQuitEvent e) {
+	 * 
+	 * if (pki == null) return;
+	 * 
+	 * if (kicked.contains(e.getPlayer().getUniqueId())) {
+	 * kicked.remove(e.getPlayer().getUniqueId()); return; }
+	 * 
+	 * pki.removePlayer(e.getPlayer());
+	 * 
+	 * }
+	 */
 
 	@Override
 	public void onLoad() {
@@ -169,7 +158,7 @@ public class Main extends JavaPlugin implements Listener {
 		for (Player p : Bukkit.getOnlinePlayers()) {
 
 			pki.removePlayer(p);
-			
+
 		}
 
 		if (forceRestart)

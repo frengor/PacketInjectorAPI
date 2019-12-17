@@ -44,7 +44,7 @@ public class PacketHandler_v1_7 extends ChannelDuplexHandler implements PacketHa
 			return;
 		}
 
-		super.write(c, m, promise);
+		super.write(c, event.getPacket(), promise);
 
 	}
 
@@ -73,7 +73,7 @@ public class PacketHandler_v1_7 extends ChannelDuplexHandler implements PacketHa
 			return;
 		}
 
-		super.channelRead(c, m);
+		super.channelRead(c, event.getPacket());
 	}
 
 }
