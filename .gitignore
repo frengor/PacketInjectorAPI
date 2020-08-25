@@ -27,6 +27,9 @@ README.md
 .classpath
 .settings/
 
+# com.google libs #
+/com/google/
+
 # IntelliJ Idea Files #
 .idea/
 
