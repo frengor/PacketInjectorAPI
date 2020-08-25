@@ -7,6 +7,9 @@
 # BlueJ files
 *.ctxt
 
+LICENSE
+README.md
+
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
@@ -19,5 +22,14 @@
 *.tar.gz
 *.rar
 
+# Eclipse Files #
+.project
+.classpath
+.settings/
+
+# IntelliJ Idea Files #
+.idea/
+
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+/bin/
