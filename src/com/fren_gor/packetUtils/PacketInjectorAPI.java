@@ -4,9 +4,8 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.bukkit.entity.Player;
 
-import com.fren_gor.packetUtils.v1_7.PacketHandler_v1_7;
+import com.fren_gor.packetUtils.v1_14.PacketInjector_v1_14;
 import com.fren_gor.packetUtils.v1_7.PacketInjector_v1_7;
-import com.fren_gor.packetUtils.v1_8.PacketHandler_v1_8;
 import com.fren_gor.packetUtils.v1_8.PacketInjector_v1_8;
 
 /**
@@ -31,20 +30,20 @@ public class PacketInjectorAPI {
 			throw new IllegalArgumentException(packet.getClass().getName() + " is not a valid packet.");
 		}
 
-		/*Object crp = ReflectionUtil.cast(player, ReflectionUtil.getCBClass("entity.CraftPlayer"));
-
-		Object ep = ReflectionUtil.invoke(crp, "getHandle");
-		Object playerConnection = ReflectionUtil.getField(ep, "playerConnection");
-
 		try {
-			playerConnection.getClass().getMethod("sendPacket", ReflectionUtil.getNMSClass("Packet"))
-					.invoke(playerConnection, packet);
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
-				| SecurityException e) {
+			if (ReflectionUtil.versionIs1_7()) {
+				((PacketInjector_v1_7) PacketInjectorPlugin.getInstance().getPacketInjector()).getChannelhandler(player)
+						.writeAndFlush(packet);
+			} else if (ReflectionUtil.versionIsAtLeast1_14()) {
+				((PacketInjector_v1_14) PacketInjectorPlugin.getInstance().getPacketInjector()).getChannelhandler(player)
+						.writeAndFlush(packet);
+			} else {
+				((PacketInjector_v1_8) PacketInjectorPlugin.getInstance().getPacketInjector()).getChannelhandler(player)
+						.writeAndFlush(packet);
+			}
+		} catch (Exception e) {
 			e.printStackTrace();
-		}*/
-		
-		Main.getInstance().getPacketInjector().getChannelhandler(player).writeAndFlush(packet);
+		}
 
 	}
 
@@ -55,9 +54,7 @@ public class PacketInjectorAPI {
 	 *            The packet will be sent to this player
 	 * @param packet
 	 *            The NMS packet
-	 * @deprecated Use
-	 *             {@link PacketInjectorAPI#sendPacketToClient(Player, Object)}
-	 *             instead
+	 * @deprecated Use {@link PacketInjectorAPI#sendPacketToClient(Player, Object)} instead
 	 */
 	@Deprecated
 	public static void sendPacket(Player player, Object packet) {
@@ -95,26 +92,19 @@ public class PacketInjectorAPI {
 			throw new IllegalArgumentException(packet.getClass().getName() + " is not a valid packet.");
 		}
 
-		PacketHandler ph = Main.getInstance().getPacketInjector().getHandler(player);
-
-		if (ReflectionUtil.versionIs1_7()) {
-			try {
-				((PacketHandler_v1_7) ph).channelRead(
-						((PacketInjector_v1_7) Main.getInstance().getPacketInjector()).getChannelhandler(player),
-						packet);
-			} catch (Exception e) {
-				e.printStackTrace();
+		try {
+			if (ReflectionUtil.versionIs1_7()) {
+				((PacketInjector_v1_7) PacketInjectorPlugin.getInstance().getPacketInjector()).getChannelhandler(player)
+						.fireChannelRead(packet);
+			} else if (ReflectionUtil.versionIsAtLeast1_14()) {
+				((PacketInjector_v1_14) PacketInjectorPlugin.getInstance().getPacketInjector()).getChannelhandler(player)
+						.fireChannelRead(packet);
+			} else {
+				((PacketInjector_v1_8) PacketInjectorPlugin.getInstance().getPacketInjector()).getChannelhandler(player)
+						.fireChannelRead(packet);
 			}
-		} else {
-
-			try {
-				((PacketHandler_v1_8) ph).channelRead(
-						((PacketInjector_v1_8) Main.getInstance().getPacketInjector()).getChannelhandler(player),
-						packet);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
