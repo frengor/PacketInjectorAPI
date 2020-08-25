@@ -1,6 +1,7 @@
 package com.fren_gor.packetUtils.v1_14;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 import javax.annotation.Nullable;
 
@@ -8,7 +9,8 @@ import org.bukkit.entity.Player;
 
 import com.fren_gor.packetUtils.PacketHandler;
 import com.fren_gor.packetUtils.PacketInjector;
-import com.fren_gor.packetUtils.Reflection;
+import com.fren_gor.packetUtils.PacketInjectorPlugin;
+import com.fren_gor.packetUtils.ReflectionUtil;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -18,21 +20,24 @@ public class PacketInjector_v1_14 implements PacketInjector {
 	private Field EntityPlayer_playerConnection;
 	private Class<?> PlayerConnection;
 	private Field PlayerConnection_networkManager;
+	private Method CraftPlayer_getHandle;
 
 	private Class<?> NetworkManager;
 	private Field k;
 
 	public PacketInjector_v1_14() {
 		try {
-			EntityPlayer_playerConnection = Reflection.getField(Reflection.getClass("{nms}.EntityPlayer"),
-					"playerConnection");
+			CraftPlayer_getHandle = ReflectionUtil.getCBClass("entity.CraftPlayer").getDeclaredMethod("getHandle");
+			EntityPlayer_playerConnection = ReflectionUtil.getNMSClass("EntityPlayer")
+					.getDeclaredField("playerConnection");
+			EntityPlayer_playerConnection.setAccessible(true);
+			PlayerConnection = ReflectionUtil.getNMSClass("PlayerConnection");
+			PlayerConnection_networkManager = PlayerConnection.getDeclaredField("networkManager");
+			PlayerConnection_networkManager.setAccessible(true);
 
-			PlayerConnection = Reflection.getClass("{nms}.PlayerConnection");
-			PlayerConnection_networkManager = Reflection.getField(PlayerConnection, "networkManager");
-
-			NetworkManager = Reflection.getClass("{nms}.NetworkManager");
-			k = Reflection.getField(NetworkManager, "channel");
-
+			NetworkManager = ReflectionUtil.getNMSClass("NetworkManager");
+			k = NetworkManager.getDeclaredField("channel");
+			k.setAccessible(true);
 		} catch (Exception t) {
 			t.printStackTrace();
 		}
@@ -41,10 +46,11 @@ public class PacketInjector_v1_14 implements PacketInjector {
 	@Override
 	public PacketHandler addPlayer(Player p) {
 		try {
-			Channel ch = getChannel(getNetworkManager(Reflection.getNmsPlayer(p)));
-			if (ch.pipeline().get("PacketInjector") == null) {
+			Channel ch = getChannel(getNetworkManager(CraftPlayer_getHandle.invoke(p)));
+			if (ch.pipeline().get(PacketInjectorPlugin.CHANNEL_HANDLER_NAME) == null) {
 				PacketHandler_v1_14 h = new PacketHandler_v1_14(p);
-				ch.pipeline().addBefore("packet_handler", "PacketInjector", h);
+				ch.pipeline().addBefore(PacketInjectorPlugin.CHANNEL_HANDLER_NAME,
+						PacketInjectorPlugin.CHANNEL_HANDLER_NAME, h);
 				return h;
 			}
 		} catch (Exception t) {
@@ -56,9 +62,9 @@ public class PacketInjector_v1_14 implements PacketInjector {
 	@Override
 	public void removePlayer(Player p) {
 		try {
-			Channel ch = getChannel(getNetworkManager(Reflection.getNmsPlayer(p)));
-			if (ch.pipeline().get("PacketInjector") != null) {
-				ch.pipeline().remove("PacketInjector");
+			Channel ch = getChannel(getNetworkManager(CraftPlayer_getHandle.invoke(p)));
+			if (ch.pipeline().get(PacketInjectorPlugin.CHANNEL_HANDLER_NAME) != null) {
+				ch.pipeline().remove(PacketInjectorPlugin.CHANNEL_HANDLER_NAME);
 			}
 		} catch (Exception t) {
 			t.printStackTrace();
@@ -68,31 +74,22 @@ public class PacketInjector_v1_14 implements PacketInjector {
 	@Nullable
 	@Override
 	public PacketHandler getHandler(Player p) {
-		Channel ch = null;
 		try {
-			ch = getChannel(getNetworkManager(Reflection.getNmsPlayer(p)));
+			Channel ch = getChannel(getNetworkManager(CraftPlayer_getHandle.invoke(p)));
+			return (PacketHandler) ch.pipeline().get(PacketInjectorPlugin.CHANNEL_HANDLER_NAME);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
-
-		return (PacketHandler) ch.pipeline().get("PacketInjector");
 	}
 
 	@Override
 	public Object getNetworkManager(Object ep) throws Exception {
-		return Reflection.getFieldValue1(PlayerConnection_networkManager,
-				Reflection.getFieldValue1(EntityPlayer_playerConnection, ep));
+		return PlayerConnection_networkManager.get(EntityPlayer_playerConnection.get(ep));
 	}
 
-	public Channel getChannel(Object networkManager) {
-		Channel ch = null;
-		try {
-			ch = Reflection.getFieldValue1(k, networkManager);
-		} catch (Exception t) {
-			t.printStackTrace();
-		}
-		return ch;
+	public Channel getChannel(Object networkManager) throws Exception {
+		return (Channel) k.get(networkManager);
 	}
 
 	public ChannelHandlerContext getChannelhandler(Player p) {
