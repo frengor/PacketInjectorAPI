@@ -31,7 +31,7 @@ public class PacketInjectorAPI {
 			throw new IllegalArgumentException(packet.getClass().getName() + " is not a valid packet.");
 		}
 
-		Object crp = ReflectionUtil.cast(player, ReflectionUtil.getCBClass("entity.CraftPlayer"));
+		/*Object crp = ReflectionUtil.cast(player, ReflectionUtil.getCBClass("entity.CraftPlayer"));
 
 		Object ep = ReflectionUtil.invoke(crp, "getHandle");
 		Object playerConnection = ReflectionUtil.getField(ep, "playerConnection");
@@ -42,7 +42,9 @@ public class PacketInjectorAPI {
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
 				| SecurityException e) {
 			e.printStackTrace();
-		}
+		}*/
+		
+		Main.getInstance().getPacketInjector().getChannelhandler(player).writeAndFlush(packet);
 
 	}
 

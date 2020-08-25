@@ -4,6 +4,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nullable;
 
@@ -12,14 +14,15 @@ import org.bukkit.Bukkit;
 import lombok.Getter;
 
 /**
- * Reflection class by fren_gor Give me credits if you use it in one of your
- * plugin
+ * Reflection class by fren_gor Give me credits if you use it in one of your plugin
  * 
  * @author fren_gor
  *
  */
 public final class ReflectionUtil {
 
+	private static Map<String, Map<String, Field>> fields = new ConcurrentHashMap<>();
+	
 	/**
 	 * Build a new class getting the proper constructor from parameters
 	 * 
@@ -99,31 +102,58 @@ public final class ReflectionUtil {
 	 *            The name of the field
 	 * @param newValue
 	 *            The new value of the field
-	 * @return The object
+	 * @return If the execution was successful
 	 */
 	@Nullable
-	public static Object setField(Object object, String field, Object newValue) {
+	public static boolean setField(Object object, String field, Object newValue) {
 
+		Class<?> c = object.getClass();
+
+		if (fields.containsKey(c.getCanonicalName())) {
+			Map<String, Field> fs = fields.get(c.getCanonicalName());
+			if (fs.containsKey(field)) {
+				try {
+					fs.get(field).set(object, newValue);
+				} catch (IllegalArgumentException | IllegalAccessException e) {
+					return false;
+				}
+				return true;
+			}
+		}
+
+		Class<?> current = c;
 		Field f;
+		while (true)
+			try {
+				f = current.getDeclaredField(field);
+				break;
+			} catch (NoSuchFieldException | SecurityException e1) {
+				current = current.getSuperclass();
+				if (current != null) {
+					continue;
+				}
+				return false;
+			}
 
-		try {
-			f = object.getClass().getDeclaredField(field);
-		} catch (NoSuchFieldException | SecurityException e) {
-			e.printStackTrace();
-			return null;
+		f.setAccessible(true);
+
+		Map<String, Field> map;
+		if (fields.containsKey(c.getCanonicalName())) {
+			map = fields.get(c.getCanonicalName());
+		} else {
+			map = new ConcurrentHashMap<>();
+			fields.put(c.getCanonicalName(), map);
 		}
 
+		map.put(f.getName(), f);
+
 		try {
-			boolean b = f.isAccessible();
-			f.setAccessible(true);
 			f.set(object, newValue);
-			f.setAccessible(b);
 		} catch (IllegalArgumentException | IllegalAccessException e) {
-			e.printStackTrace();
-			return null;
+			return false;
 		}
 
-		return object;
+		return true;
 
 	}
 
@@ -131,39 +161,58 @@ public final class ReflectionUtil {
 	 * Get a field value
 	 * 
 	 * @param object
-	 *            The object from which the represented field's value is to be
-	 *            extracted
+	 *            The object from which the represented field's value is to be extracted
 	 * @param field
 	 *            The field name
-	 * @return The field value
+	 * @return The field value, null if the field doesn't exists.
 	 */
 	@Nullable
 	public static Object getField(Object object, String field) {
 
-		Field f;
+		Class<?> c = object.getClass();
 
-		try {
-			f = object.getClass().getDeclaredField(field);
-		} catch (NoSuchFieldException | SecurityException e) {
-			try {
-				f = object.getClass().getSuperclass().getDeclaredField(field);
-			} catch (SecurityException | NoSuchFieldException ex) {
-				ex.printStackTrace();
-				return null;
+		if (fields.containsKey(c.getCanonicalName())) {
+			Map<String, Field> fs = fields.get(c.getCanonicalName());
+			if (fs.containsKey(field)) {
+				try {
+					return fs.get(field).get(object);
+				} catch (IllegalArgumentException | IllegalAccessException e) {
+					return null;
+				}
 			}
 		}
-		Object o = null;
-		try {
-			boolean b = f.isAccessible();
-			f.setAccessible(true);
-			o = f.get(object);
-			f.setAccessible(b);
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			e.printStackTrace();
-			return null;
+
+		Class<?> current = c;
+		Field f;
+		while (true)
+			try {
+				f = current.getDeclaredField(field);
+				break;
+			} catch (NoSuchFieldException | SecurityException e1) {
+				current = current.getSuperclass();
+				if (current != null) {
+					continue;
+				}
+				return null;
+			}
+
+		f.setAccessible(true);
+
+		Map<String, Field> map;
+		if (fields.containsKey(c.getCanonicalName())) {
+			map = fields.get(c.getCanonicalName());
+		} else {
+			map = new ConcurrentHashMap<>();
+			fields.put(c.getCanonicalName(), map);
 		}
 
-		return o;
+		map.put(f.getName(), f);
+
+		try {
+			return f.get(object);
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			return null;
+		}
 
 	}
 
@@ -220,11 +269,6 @@ public final class ReflectionUtil {
 		}
 	}
 
-	@Getter
-	private static int version = Integer.valueOf(Bukkit.getServer().getClass().getName().split("\\.")[3].split("_")[1]);
-	@Getter
-	private static int release = Integer.valueOf(Bukkit.getServer().getClass().getName().split("\\.")[3].split("R")[1]);
-
 	/**
 	 * Get the server version
 	 * 
@@ -234,13 +278,27 @@ public final class ReflectionUtil {
 		return Bukkit.getServer().getClass().getName().split("\\.")[3];
 	}
 
+	@Getter
+	private static int version = Integer.valueOf(getCompleteVersion().split("_")[1]);
+	@Getter
+	private static int release = Integer.valueOf(getCompleteVersion().split("R")[1]);
+
 	/**
 	 * Check if the server is in 1.7
 	 * 
 	 * @return If the server is in 1.7
 	 */
 	public static boolean versionIs1_7() {
-		return Bukkit.getServer().getClass().getName().split("\\.")[3].startsWith("v1_7");
+		return version == 7;
+	}
+
+	/**
+	 * Check if the server is in 1.14+
+	 * 
+	 * @return If the server is in 1.14+
+	 */
+	public static boolean versionIsAtLeast1_14() {
+		return version >= 14;
 	}
 
 }

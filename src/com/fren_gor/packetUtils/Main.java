@@ -6,6 +6,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -13,6 +14,7 @@ import com.fren_gor.packetUtils.libraries.Metrics;
 import com.fren_gor.packetUtils.libraries.org.inventivetalent.update.spiget.SpigetUpdate;
 import com.fren_gor.packetUtils.libraries.org.inventivetalent.update.spiget.UpdateCallback;
 import com.fren_gor.packetUtils.libraries.org.inventivetalent.update.spiget.comparator.VersionComparator;
+import com.fren_gor.packetUtils.v1_14.PacketInjector_v1_14;
 import com.fren_gor.packetUtils.v1_7.PacketInjector_v1_7;
 import com.fren_gor.packetUtils.v1_8.PacketInjector_v1_8;
 
@@ -28,6 +30,7 @@ public class Main extends JavaPlugin implements Listener {
 
 	private boolean forceRestart = false;
 	public static boolean v1_7 = false;
+	public static boolean v1_14 = false;
 	private static Main instance;
 
 	public static Main getInstance() {
@@ -39,7 +42,7 @@ public class Main extends JavaPlugin implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
-	public void onJoin(PlayerJoinEvent e) {
+	public void onJoin(PlayerLoginEvent e) {
 
 		if (pki == null)
 			return;
@@ -74,8 +77,10 @@ public class Main extends JavaPlugin implements Listener {
 	public void onLoad() {
 		instance = this;
 
-		if (ReflectionUtil.getCompleteVersion().startsWith("v1_7")) {
+		if (ReflectionUtil.versionIs1_7()) {
 			v1_7 = true;
+		} else if (ReflectionUtil.versionIsAtLeast1_14()) {
+			v1_14 = true;
 		}
 	}
 
@@ -86,8 +91,11 @@ public class Main extends JavaPlugin implements Listener {
 
 			pki = new PacketInjector_v1_7();
 
-		} else {
+		} else if (v1_14) {
 
+			pki = new PacketInjector_v1_14();
+
+		} else {
 			pki = new PacketInjector_v1_8();
 		}
 

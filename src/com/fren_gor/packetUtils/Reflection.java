@@ -2,11 +2,9 @@ package com.fren_gor.packetUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.scoreboard.Scoreboard;
 
 public class Reflection {
 	public static Class<?> getClass(String classname) {
@@ -26,16 +24,16 @@ public class Reflection {
 		return getHandle.invoke(p);
 	}
 
-	public static Object getNmsScoreboard(Scoreboard s) throws Exception {
+	/*public static Object getNmsSco1reboard(Scoreboard s) throws Exception {
 		Method getHandle = s.getClass().getMethod("getHandle");
 		return getHandle.invoke(s);
 	}
-
-	public static Object getFieldValue(Object instance, String fieldName) throws Exception {
+	
+	public static Object getField1Value(Object instance, String fieldName) throws Exception {
 		Field field = instance.getClass().getDeclaredField(fieldName);
 		field.setAccessible(true);
 		return field.get(instance);
-	}
+	}*/
 
 	@SuppressWarnings("unchecked")
 	public static <T> T getFieldValue1(Field field, Object obj) {
@@ -53,7 +51,7 @@ public class Reflection {
 		return field;
 	}
 
-	public static void setValue(Object instance, String field, Object value) {
+	/*public static void setVa1lue(Object instance, String field, Object value) {
 		try {
 			Field f = instance.getClass().getDeclaredField(field);
 			f.setAccessible(true);
@@ -62,8 +60,8 @@ public class Reflection {
 			t.printStackTrace();
 		}
 	}
-
-	public static void sendAllPacket(Object packet) throws Exception {
+	
+	public static void sendAll1Packet(Object packet) throws Exception {
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			Object nmsPlayer = getNmsPlayer(p);
 			Object connection = nmsPlayer.getClass().getField("playerConnection").get(nmsPlayer);
@@ -71,8 +69,8 @@ public class Reflection {
 					packet);
 		}
 	}
-
-	public static void sendListPacket(List<String> players, Object packet) {
+	
+	public static void sendList1Packet(List<String> players, Object packet) {
 		try {
 			for (String name : players) {
 				Object nmsPlayer = getNmsPlayer(Bukkit.getPlayer(name));
@@ -84,10 +82,10 @@ public class Reflection {
 			t.printStackTrace();
 		}
 	}
-
-	public static void sendPlayerPacket(Player p, Object packet) throws Exception {
+	
+	public static void sendP1layerPacket(Player p, Object packet) throws Exception {
 		Object nmsPlayer = getNmsPlayer(p);
 		Object connection = nmsPlayer.getClass().getField("playerConnection").get(nmsPlayer);
 		connection.getClass().getMethod("sendPacket", Reflection.getClass("{nms}.Packet")).invoke(connection, packet);
-	}
+	}*/
 }

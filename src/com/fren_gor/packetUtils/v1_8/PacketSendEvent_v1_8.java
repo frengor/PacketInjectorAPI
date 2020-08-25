@@ -48,6 +48,7 @@ public class PacketSendEvent_v1_8 extends Event implements Cancellable {
 	}
 
 	public PacketSendEvent_v1_8(Player p, ChannelHandlerContext c, Object packet, ChannelPromise promise) {
+		super(true);
 		this.p = p;
 		this.c = c;
 		this.packet = packet;

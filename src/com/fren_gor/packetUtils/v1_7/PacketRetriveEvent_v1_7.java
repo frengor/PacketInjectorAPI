@@ -42,6 +42,7 @@ public class PacketRetriveEvent_v1_7 extends Event implements Cancellable {
 	}
 
 	public PacketRetriveEvent_v1_7(Player p, ChannelHandlerContext c, Object packet) {
+		super(true);
 		this.p = p;
 		this.c = c;
 		this.packet = packet;

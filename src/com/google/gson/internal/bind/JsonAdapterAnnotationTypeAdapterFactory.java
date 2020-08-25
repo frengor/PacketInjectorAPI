@@ -24,45 +24,42 @@ import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.reflect.TypeToken;
 
 /**
- * Given a type T, looks for the annotation {@link JsonAdapter} and uses an instance of the
- * specified class as the default type adapter.
+ * Given a type T, looks for the annotation {@link JsonAdapter} and uses an
+ * instance of the specified class as the default type adapter.
  *
  * @since 2.3
  */
 public final class JsonAdapterAnnotationTypeAdapterFactory implements TypeAdapterFactory {
 
-  private final ConstructorConstructor constructorConstructor;
+	private final ConstructorConstructor constructorConstructor;
 
-  public JsonAdapterAnnotationTypeAdapterFactory(ConstructorConstructor constructorConstructor) {
-    this.constructorConstructor = constructorConstructor;
-  }
+	public JsonAdapterAnnotationTypeAdapterFactory(ConstructorConstructor constructorConstructor) {
+		this.constructorConstructor = constructorConstructor;
+	}
 
-  @SuppressWarnings("unchecked")
-  @Override
-  public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> targetType) {
-    JsonAdapter annotation = targetType.getRawType().getAnnotation(JsonAdapter.class);
-    if (annotation == null) {
-      return null;
-    }
-    return (TypeAdapter<T>) getTypeAdapter(constructorConstructor, gson, targetType, annotation);
-  }
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> targetType) {
+		JsonAdapter annotation = targetType.getRawType().getAnnotation(JsonAdapter.class);
+		if (annotation == null) {
+			return null;
+		}
+		return (TypeAdapter<T>) getTypeAdapter(constructorConstructor, gson, targetType, annotation);
+	}
 
-  @SuppressWarnings("unchecked") // Casts guarded by conditionals.
-  static TypeAdapter<?> getTypeAdapter(ConstructorConstructor constructorConstructor, Gson gson,
-      TypeToken<?> fieldType, JsonAdapter annotation) {
-    Class<?> value = annotation.value();
-    if (TypeAdapter.class.isAssignableFrom(value)) {
-          Class<TypeAdapter<?>> typeAdapter = (Class<TypeAdapter<?>>) value;
-      return constructorConstructor.get(TypeToken.get(typeAdapter)).construct();
-    }
-    if (TypeAdapterFactory.class.isAssignableFrom(value)) {
-          Class<TypeAdapterFactory> typeAdapterFactory = (Class<TypeAdapterFactory>) value;
-      return constructorConstructor.get(TypeToken.get(typeAdapterFactory))
-          .construct()
-          .create(gson, fieldType);
-    }
+	@SuppressWarnings("unchecked") // Casts guarded by conditionals.
+	static TypeAdapter<?> getTypeAdapter(ConstructorConstructor constructorConstructor, Gson gson,
+			TypeToken<?> fieldType, JsonAdapter annotation) {
+		Class<?> value = annotation.value();
+		if (TypeAdapter.class.isAssignableFrom(value)) {
+			Class<TypeAdapter<?>> typeAdapter = (Class<TypeAdapter<?>>) value;
+			return constructorConstructor.get(TypeToken.get(typeAdapter)).construct();
+		}
+		if (TypeAdapterFactory.class.isAssignableFrom(value)) {
+			Class<TypeAdapterFactory> typeAdapterFactory = (Class<TypeAdapterFactory>) value;
+			return constructorConstructor.get(TypeToken.get(typeAdapterFactory)).construct().create(gson, fieldType);
+		}
 
-    throw new IllegalArgumentException(
-        "@JsonAdapter value must be TypeAdapter or TypeAdapterFactory reference.");
-  }
+		throw new IllegalArgumentException("@JsonAdapter value must be TypeAdapter or TypeAdapterFactory reference.");
+	}
 }

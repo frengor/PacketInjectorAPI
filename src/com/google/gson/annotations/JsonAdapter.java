@@ -28,7 +28,10 @@ import com.google.gson.TypeAdapterFactory;
  * An annotation that indicates the Gson {@link TypeAdapter} to use with a class
  * or field.
  *
- * <p>Here is an example of how this annotation is used:</p>
+ * <p>
+ * Here is an example of how this annotation is used:
+ * </p>
+ * 
  * <pre>
  * &#64JsonAdapter(UserJsonAdapter.class)
  * public class User {
@@ -58,10 +61,13 @@ import com.google.gson.TypeAdapterFactory;
  * }
  * </pre>
  *
- * Since User class specified UserJsonAdapter.class in &#64JsonAdapter annotation, it
- * will automatically be invoked to serialize/deserialize User instances. <br>
+ * Since User class specified UserJsonAdapter.class in &#64JsonAdapter
+ * annotation, it will automatically be invoked to serialize/deserialize User
+ * instances. <br>
  *
- * <p> Here is an example of how to apply this annotation to a field.
+ * <p>
+ * Here is an example of how to apply this annotation to a field.
+ * 
  * <pre>
  * private static final class Gadget {
  *   &#64JsonAdapter(UserJsonAdapter2.class)
@@ -72,14 +78,15 @@ import com.google.gson.TypeAdapterFactory;
  * }
  * </pre>
  *
- * It's possible to specify different type adapters on a field, that
- * field's type, and in the {@link com.google.gson.GsonBuilder}. Field
- * annotations take precedence over {@code GsonBuilder}-registered type
- * adapters, which in turn take precedence over annotated types.
+ * It's possible to specify different type adapters on a field, that field's
+ * type, and in the {@link com.google.gson.GsonBuilder}. Field annotations take
+ * precedence over {@code GsonBuilder}-registered type adapters, which in turn
+ * take precedence over annotated types.
  *
- * <p>The class referenced by this annotation must be either a {@link
- * TypeAdapter} or a {@link TypeAdapterFactory}. Using the factory interface
- * makes it possible to delegate to the enclosing {@code Gson} instance.
+ * <p>
+ * The class referenced by this annotation must be either a {@link TypeAdapter}
+ * or a {@link TypeAdapterFactory}. Using the factory interface makes it
+ * possible to delegate to the enclosing {@code Gson} instance.
  *
  * @since 2.3
  *
@@ -89,10 +96,10 @@ import com.google.gson.TypeAdapterFactory;
  */
 // Note that the above example is taken from AdaptAnnotationTest.
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.FIELD})
+@Target({ ElementType.TYPE, ElementType.FIELD })
 public @interface JsonAdapter {
 
-  /** Either a {@link TypeAdapter} or {@link TypeAdapterFactory}. */
-  Class<?> value();
+	/** Either a {@link TypeAdapter} or {@link TypeAdapterFactory}. */
+	Class<?> value();
 
 }

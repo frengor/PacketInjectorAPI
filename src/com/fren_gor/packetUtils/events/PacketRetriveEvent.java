@@ -35,6 +35,7 @@ public class PacketRetriveEvent extends Event implements Cancellable {
 	}
 
 	public PacketRetriveEvent(Player p, Object packet) {
+		super(true);
 		this.p = p;
 		this.packet = packet;
 		this.packetName = packet.getClass().getSimpleName();
