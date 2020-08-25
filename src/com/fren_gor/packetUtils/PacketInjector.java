@@ -2,8 +2,6 @@ package com.fren_gor.packetUtils;
 
 import org.bukkit.entity.Player;
 
-import io.netty.channel.ChannelHandlerContext;
-
 public abstract interface PacketInjector {
 
 	public abstract Class<?> getNetworkManager();
@@ -15,7 +13,5 @@ public abstract interface PacketInjector {
 	public abstract void removePlayer(Player p);
 
 	public abstract PacketHandler getHandler(Player p);
-	
-	public ChannelHandlerContext getChannelhandler(Player p);
 
 }
