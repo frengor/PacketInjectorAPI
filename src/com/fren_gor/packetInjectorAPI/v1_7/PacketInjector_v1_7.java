@@ -67,8 +67,7 @@ public class PacketInjector_v1_7 implements PacketInjector {
 			Channel ch = getChannel(getNetworkManager(CraftPlayer_getHandle.invoke(p)));
 			if (ch.pipeline().get(PacketInjectorPlugin.CHANNEL_HANDLER_NAME) == null) {
 				PacketHandler_v1_7 h = new PacketHandler_v1_7(p);
-				ch.pipeline().addBefore(PacketInjectorPlugin.CHANNEL_HANDLER_NAME,
-						PacketInjectorPlugin.CHANNEL_HANDLER_NAME, h);
+				ch.pipeline().addBefore("packet_handler", PacketInjectorPlugin.CHANNEL_HANDLER_NAME, h);
 				return h;
 			}
 		} catch (Exception t) {
