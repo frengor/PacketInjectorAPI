@@ -20,12 +20,14 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //  SOFTWARE.
 
-package com.fren_gor.packetInjectorAPI.events;
+package com.fren_gor.packetInjectorAPI.api.listeners;
+
+import com.fren_gor.packetInjectorAPI.api.events.PacketRetriveEvent;
 
 @FunctionalInterface
-public interface PacketSendListener extends PacketListener {
+public interface PacketRetriveListener extends PacketListener {
 
 	@Override
-	void onSend(PacketSendEvent event);
+	void onRetrive(PacketRetriveEvent event);
 
 }

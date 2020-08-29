@@ -333,13 +333,4 @@ public final class ReflectionUtil {
 	@Getter
 	private static int release = Integer.valueOf(getCompleteVersion().split("R")[1]);
 
-	/**
-	 * Check if the server is in 1.7
-	 * 
-	 * @return If the server is in 1.7
-	 */
-	public static boolean versionIs1_7() {
-		return version == 7;
-	}
-
 }

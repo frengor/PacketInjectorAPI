@@ -24,9 +24,9 @@ package com.fren_gor.packetInjectorAPI.tests.listeners;
 
 import java.util.Set;
 
-import com.fren_gor.packetInjectorAPI.events.PacketListener;
-import com.fren_gor.packetInjectorAPI.events.PacketRetriveEvent;
-import com.fren_gor.packetInjectorAPI.events.PacketSendEvent;
+import com.fren_gor.packetInjectorAPI.api.events.PacketRetriveEvent;
+import com.fren_gor.packetInjectorAPI.api.events.PacketSendEvent;
+import com.fren_gor.packetInjectorAPI.api.listeners.PacketListener;
 
 public abstract class AbstractListener implements PacketListener {
 

@@ -20,12 +20,54 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //  SOFTWARE.
 
-package com.fren_gor.packetInjectorAPI;
+package com.fren_gor.packetInjectorAPI.api.events;
 
+import org.apache.commons.lang.Validate;
 import org.bukkit.entity.Player;
 
-public interface PacketHandler {
+import com.fren_gor.packetInjectorAPI.ReflectionUtil;
 
-	Player getPlayer();
+import lombok.Getter;
+
+public final class PacketRetriveEvent extends PacketEvent {
+
+	@Getter
+	private final Player player;
+	@Getter
+	private Object packet;
+	@Getter
+	private final String packetName;
+
+	public PacketRetriveEvent(Player p, Object packet) {
+		this.packetName = packet.getClass().getSimpleName();
+		Validate.isTrue(packetName.startsWith("PacketPlayIn"));
+		this.player = p;
+		this.packet = packet;
+	}
+
+	public Object setPacket(Object packet) {
+
+		if (this.packet.getClass().getCanonicalName().equals(packet.getClass().getCanonicalName())) {
+			Object p = this.packet;
+			this.packet = packet;
+			return p;
+		}
+
+		throw new IllegalArgumentException(
+				"Old packet class doesn't match the new one: " + this.packet.getClass().getCanonicalName());
+
+	}
+
+	public void setValue(String field, Object value) {
+
+		ReflectionUtil.setField(packet, field, value);
+
+	}
+
+	public Object getValue(String field) {
+
+		return ReflectionUtil.getField(packet, field);
+
+	}
 
 }

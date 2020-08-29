@@ -20,7 +20,7 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //  SOFTWARE.
 
-package com.fren_gor.packetInjectorAPI.events;
+package com.fren_gor.packetInjectorAPI.api;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -29,6 +29,12 @@ import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 import org.bukkit.plugin.Plugin;
+
+import com.fren_gor.packetInjectorAPI.api.events.PacketRetriveEvent;
+import com.fren_gor.packetInjectorAPI.api.events.PacketSendEvent;
+import com.fren_gor.packetInjectorAPI.api.listeners.PacketListener;
+import com.fren_gor.packetInjectorAPI.api.listeners.PacketRetriveListener;
+import com.fren_gor.packetInjectorAPI.api.listeners.PacketSendListener;
 
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;

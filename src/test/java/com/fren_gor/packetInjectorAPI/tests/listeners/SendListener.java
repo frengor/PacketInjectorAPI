@@ -26,8 +26,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Set;
 
-import com.fren_gor.packetInjectorAPI.events.PacketListener;
-import com.fren_gor.packetInjectorAPI.events.PacketSendListener;
+import com.fren_gor.packetInjectorAPI.api.listeners.PacketListener;
+import com.fren_gor.packetInjectorAPI.api.listeners.PacketSendListener;
 
 public class SendListener extends AbstractListener implements PacketSendListener {
 

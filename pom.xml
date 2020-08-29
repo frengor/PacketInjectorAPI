@@ -11,10 +11,6 @@
 	<name>PacketInjectorAPI</name>
 	<description>Library for working with minecraft packets</description>
 
-	<prerequisites>
-		<maven>3.3.3</maven>
-	</prerequisites>
-
 	<properties>
 		<!-- Project Properties -->
 		<projectEncoding>UTF-8</projectEncoding>
@@ -53,13 +49,12 @@
 			<scope>provided</scope>
 		</dependency>
 
-		<!-- Spigot 1.7 -->
+		<!--This adds the Spigot API artifact to the build -->
 		<dependency>
-			<groupId>Spigot1_7_R1</groupId>
-			<artifactId>Spigot1_7_R1</artifactId>
-			<scope>system</scope>
-			<version>1.0</version>
-			<systemPath>${project.basedir}/Spigots/spigot-1_7_R1.jar</systemPath>
+			<groupId>org.spigotmc</groupId>
+			<artifactId>spigot-api</artifactId>
+			<version>1.16.2-R0.1-SNAPSHOT</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<!-- BStats -->
@@ -82,7 +77,7 @@
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-all</artifactId>
-			<version>4.1.42</version>
+			<version>4.1.51.Final</version>
 			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>
@@ -234,9 +229,9 @@
 							<goal>delombok</goal>
 						</goals>
 						<configuration>
-							<addOutputDirectory>false</addOutputDirectory>
-							<outputDirectory>${project.build.directory}/delombok</outputDirectory>
 							<sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
+							<outputDirectory>${project.build.directory}/delombok</outputDirectory>
+							<addOutputDirectory>false</addOutputDirectory>
 						</configuration>
 					</execution>
 				</executions>
@@ -256,30 +251,18 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.2.0</version>
 				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
 					<execution>
 						<id>delombok</id>
 						<phase>package</phase>
 						<goals>
 							<goal>jar</goal>
 						</goals>
-						<configuration>
-							<!-- lombok does not add @return or @param which causes warnings, 
-								so ignore -->
-							<doclint>none</doclint>
-							<sourcepath>${project.build.directory}/delombok</sourcepath>
-						</configuration>
 					</execution>
 				</executions>
 				<configuration>
-					<quiet>true</quiet>
-					<failOnWarnings>true</failOnWarnings>
+					<sourcepath>${project.build.directory}/delombok</sourcepath>
 				</configuration>
 			</plugin>
 		</plugins>

@@ -33,10 +33,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import com.fren_gor.packetInjectorAPI.events.PacketEventManager;
-import com.fren_gor.packetInjectorAPI.events.PacketListener;
-import com.fren_gor.packetInjectorAPI.events.PacketRetriveEvent;
-import com.fren_gor.packetInjectorAPI.events.PacketSendEvent;
+import com.fren_gor.packetInjectorAPI.api.PacketEventManager;
+import com.fren_gor.packetInjectorAPI.api.events.PacketRetriveEvent;
+import com.fren_gor.packetInjectorAPI.api.events.PacketSendEvent;
+import com.fren_gor.packetInjectorAPI.api.listeners.PacketListener;
 import com.fren_gor.packetInjectorAPI.listeners.PluginDisable;
 import com.fren_gor.packetInjectorAPI.tests.dummyClasses.DummyPlugin;
 import com.fren_gor.packetInjectorAPI.tests.dummyClasses.PacketPlayIn;

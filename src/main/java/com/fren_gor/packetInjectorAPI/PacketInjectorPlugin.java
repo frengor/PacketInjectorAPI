@@ -35,10 +35,10 @@ import org.inventivetalent.update.spiget.SpigetUpdate;
 import org.inventivetalent.update.spiget.UpdateCallback;
 import org.inventivetalent.update.spiget.comparator.VersionComparator;
 
-import com.fren_gor.packetInjectorAPI.events.PacketEventManager;
+import com.fren_gor.packetInjectorAPI.api.PacketEventManager;
+import com.fren_gor.packetInjectorAPI.api.PacketInjector;
+import com.fren_gor.packetInjectorAPI.impl.PacketInjector_v1_8;
 import com.fren_gor.packetInjectorAPI.listeners.PluginDisable;
-import com.fren_gor.packetInjectorAPI.v1_7.PacketInjector_v1_7;
-import com.fren_gor.packetInjectorAPI.v1_8.PacketInjector_v1_8;
 
 public class PacketInjectorPlugin extends JavaPlugin implements Listener {
 
@@ -47,11 +47,14 @@ public class PacketInjectorPlugin extends JavaPlugin implements Listener {
 	private PacketInjector pki;
 
 	private boolean forceRestart = false;
-	private static boolean v1_7 = false;
 	private static PacketInjectorPlugin instance;
 
 	public static PacketInjectorPlugin getInstance() {
 		return instance;
+	}
+
+	public void setPacketInjector(PacketInjector pki) {
+		this.pki = pki;
 	}
 
 	public PacketInjector getPacketInjector() {
@@ -70,10 +73,6 @@ public class PacketInjectorPlugin extends JavaPlugin implements Listener {
 	@Override
 	public void onLoad() {
 		instance = this;
-
-		if (ReflectionUtil.versionIs1_7()) {
-			v1_7 = true;
-		}
 	}
 
 	@Override
@@ -81,11 +80,7 @@ public class PacketInjectorPlugin extends JavaPlugin implements Listener {
 
 		Bukkit.getPluginManager().registerEvents(new PluginDisable(), this);
 
-		if (v1_7) {
-			pki = new PacketInjector_v1_7();
-		} else {
-			pki = new PacketInjector_v1_8();
-		}
+		setPacketInjector(new PacketInjector_v1_8());
 
 		new BukkitRunnable() {
 
@@ -152,7 +147,7 @@ public class PacketInjectorPlugin extends JavaPlugin implements Listener {
 	public void onDisable() {
 
 		PacketEventManager.unregisterEveryPacketListener();
-		
+
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			pki.removePlayer(p);
 		}

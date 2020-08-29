@@ -36,11 +36,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginLoader;
 
-import com.avaje.ebean.EbeanServer;
-
 public class DummyPlugin implements Plugin {
-	
-	private static int ciao;
 
 	@Override
 	public List<String> onTabComplete(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
@@ -59,11 +55,6 @@ public class DummyPlugin implements Plugin {
 
 	@Override
 	public File getDataFolder() {
-		return null;
-	}
-
-	@Override
-	public EbeanServer getDatabase() {
 		return null;
 	}
 

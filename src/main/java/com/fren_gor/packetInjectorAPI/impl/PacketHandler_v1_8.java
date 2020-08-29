@@ -1,11 +1,11 @@
-package com.fren_gor.packetInjectorAPI.v1_8;
+package com.fren_gor.packetInjectorAPI.impl;
 
 import org.bukkit.entity.Player;
 
-import com.fren_gor.packetInjectorAPI.PacketHandler;
-import com.fren_gor.packetInjectorAPI.events.PacketEventManager;
-import com.fren_gor.packetInjectorAPI.events.PacketRetriveEvent;
-import com.fren_gor.packetInjectorAPI.events.PacketSendEvent;
+import com.fren_gor.packetInjectorAPI.api.PacketEventManager;
+import com.fren_gor.packetInjectorAPI.api.PacketHandler;
+import com.fren_gor.packetInjectorAPI.api.events.PacketRetriveEvent;
+import com.fren_gor.packetInjectorAPI.api.events.PacketSendEvent;
 
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -14,7 +14,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class PacketHandler_v1_8 extends ChannelDuplexHandler implements PacketHandler {
+public class PacketHandler_v1_8 extends  PacketHandler {
 
 	@Getter
 	private final Player player;

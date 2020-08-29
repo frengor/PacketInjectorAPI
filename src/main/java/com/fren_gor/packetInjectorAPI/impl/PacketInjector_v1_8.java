@@ -1,16 +1,15 @@
-package com.fren_gor.packetInjectorAPI.v1_8;
+package com.fren_gor.packetInjectorAPI.impl;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import javax.annotation.Nullable;
-
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
-import com.fren_gor.packetInjectorAPI.PacketHandler;
-import com.fren_gor.packetInjectorAPI.PacketInjector;
 import com.fren_gor.packetInjectorAPI.PacketInjectorPlugin;
 import com.fren_gor.packetInjectorAPI.ReflectionUtil;
+import com.fren_gor.packetInjectorAPI.api.PacketHandler;
+import com.fren_gor.packetInjectorAPI.api.PacketInjector;
 
 import io.netty.channel.Channel;
 

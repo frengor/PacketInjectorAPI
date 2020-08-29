@@ -1,6 +1,6 @@
 //  MIT License
 //  
-//  Copyright (c) 2019 fren_gor
+//  Copyright (c) 2020 fren_gor
 //  
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -20,14 +20,20 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //  SOFTWARE.
 
-package com.fren_gor.packetInjectorAPI.events;
+package com.fren_gor.packetInjectorAPI.api;
 
-public interface PacketListener {
+import org.bukkit.entity.Player;
 
-	default void onSend(PacketSendEvent event) {
-	}
+public interface PacketInjector {
 
-	default void onRetrive(PacketRetriveEvent event) {
-	}
+	PacketHandler addPlayer(Player p);
 
+	void removePlayer(Player p);
+
+	PacketHandler getHandler(Player p);
+	
+	void sendPacket(Player p, Object packet) throws Exception;
+
+	void sendPacketToServer(Player p, Object packet) throws Exception;
+	
 }

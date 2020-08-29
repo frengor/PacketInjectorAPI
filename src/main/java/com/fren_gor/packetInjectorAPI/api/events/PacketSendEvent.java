@@ -20,17 +20,54 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //  SOFTWARE.
 
-package com.fren_gor.packetInjectorAPI.events;
+package com.fren_gor.packetInjectorAPI.api.events;
 
-import org.bukkit.event.Cancellable;
+import org.apache.commons.lang.Validate;
+import org.bukkit.entity.Player;
+
+import com.fren_gor.packetInjectorAPI.ReflectionUtil;
 
 import lombok.Getter;
-import lombok.Setter;
 
-abstract class PacketEvent implements Cancellable {
+public final class PacketSendEvent extends PacketEvent {
 
 	@Getter
-	@Setter
-	private boolean cancelled = false;
+	private final Player player;
+	@Getter
+	private Object packet;
+	@Getter
+	private final String packetName;
+
+	public Object setPacket(Object packet) {
+
+		if (this.packet.getClass().getCanonicalName().equals(packet.getClass().getCanonicalName())) {
+			Object p = this.packet;
+			this.packet = packet;
+			return p;
+		}
+
+		throw new IllegalArgumentException(
+				"Old packet class doesn't match the new one: " + this.packet.getClass().getCanonicalName());
+
+	}
+
+	public PacketSendEvent(Player p, Object packet) {
+		this.packetName = packet.getClass().getSimpleName();
+		Validate.isTrue(packetName.startsWith("PacketPlayOut"));
+		this.player = p;
+		this.packet = packet;
+	}
+
+	public void setValue(String field, Object value) {
+
+		ReflectionUtil.setField(packet, field, value);
+
+	}
+
+	public Object getValue(String field) {
+
+		return ReflectionUtil.getField(packet, field);
+
+	}
 
 }

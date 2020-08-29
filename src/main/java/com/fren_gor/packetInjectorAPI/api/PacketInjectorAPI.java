@@ -20,9 +20,12 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //  SOFTWARE.
 
-package com.fren_gor.packetInjectorAPI;
+package com.fren_gor.packetInjectorAPI.api;
 
 import org.bukkit.entity.Player;
+
+import com.fren_gor.packetInjectorAPI.PacketInjectorPlugin;
+import com.fren_gor.packetInjectorAPI.ReflectionUtil;
 
 /**
  * Util class by fren_gor Give me credits if you use it in one of your plugin

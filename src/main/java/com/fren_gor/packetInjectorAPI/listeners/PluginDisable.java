@@ -26,7 +26,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginDisableEvent;
 
-import com.fren_gor.packetInjectorAPI.events.PacketEventManager;
+import com.fren_gor.packetInjectorAPI.api.PacketEventManager;
 
 public class PluginDisable implements Listener {
 
