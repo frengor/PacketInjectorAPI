@@ -1,5 +1,5 @@
 # Packet Injector API
-[![](https://jitpack.io/v/com.frengor/PacketInjectorAPI.svg)](https://jitpack.io/#com.frengor/PacketInjectorAPI/2.0.0)
+[![](https://jitpack.io/v/com.frengor/PacketInjectorAPI.svg)](https://jitpack.io/#com.frengor/PacketInjectorAPI)
 
 API for managing packets
 
