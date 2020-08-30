@@ -24,6 +24,7 @@ package com.fren_gor.packetInjectorAPI;
 
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -124,7 +125,7 @@ public class PacketInjectorPlugin extends JavaPlugin implements Listener {
 						// Update downloaded, will be loaded when the server
 						// restarts
 						Bukkit.getConsoleSender()
-								.sendMessage("�bUpdate downloaded, will be loaded when the server restarts");
+								.sendMessage(ChatColor.AQUA + "Update downloaded, will be loaded when the server restarts");
 					} else {
 						// Update failed
 						getLogger().warning("Update download failed, reason is " + updater.getFailReason());
@@ -135,7 +136,7 @@ public class PacketInjectorPlugin extends JavaPlugin implements Listener {
 			@Override
 			public void upToDate() {
 				//// Plugin is up-to-date
-				Bukkit.getConsoleSender().sendMessage("�bPacketInjectorAPI is up to date!");
+				Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "PacketInjectorAPI is up to date!");
 			}
 		});
 
