@@ -169,7 +169,6 @@
 							</includes>
 							<excludes>
 								<exclude>it/unimi/dsi/fastutil/*/*Int*</exclude>
-								<exclude>it/unimi/dsi/fastutil/*/*Object*</exclude>
 								<exclude>it/unimi/dsi/fastutil/*/*Boolean*</exclude>
 								<exclude>it/unimi/dsi/fastutil/*/*Byte*</exclude>
 								<exclude>it/unimi/dsi/fastutil/*/*Short*</exclude>
@@ -177,12 +176,6 @@
 								<exclude>it/unimi/dsi/fastutil/*/*Double*</exclude>
 								<exclude>it/unimi/dsi/fastutil/*/*Long*</exclude>
 								<exclude>it/unimi/dsi/fastutil/*/*Char*</exclude>
-
-								<exclude>it/unimi/dsi/fastutil/*/*Custom*</exclude>
-								<exclude>it/unimi/dsi/fastutil/*/*Sorted*</exclude>
-								<exclude>it/unimi/dsi/fastutil/*/*Tree*</exclude>
-								<exclude>it/unimi/dsi/fastutil/*/*Heap*</exclude>
-								<exclude>it/unimi/dsi/fastutil/*/*Queue*</exclude>
 
 								<exclude>it/unimi/dsi/fastutil/*/*Big*</exclude>
 								<exclude>it/unimi/dsi/fastutil/*/*Synchronized*</exclude>
