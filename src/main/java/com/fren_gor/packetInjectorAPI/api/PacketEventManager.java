@@ -91,6 +91,7 @@ public final class PacketEventManager {
 	public synchronized static void registerPacketListener(Plugin owner, PacketListener listener) {
 		Validate.notNull(owner, "Plugin cannot be null");
 		Validate.notNull(listener, "PacketListener cannot be null");
+		Validate.isTrue(owner.isEnabled(), "Plugin isn't enabled");
 		Set<PacketListener> list = MAP_LISTENERS.get(owner);
 		if (list == null) {
 			list = new ReferenceLinkedOpenHashSet<>();
