@@ -129,7 +129,8 @@ public final class PacketEventManager {
 	}
 
 	/**
-	 * Unregister all the packet listeners of a plugin
+	 * Unregister all the packet listeners of a plugin.<br>
+	 * Does nothing if plugin isn't registered.
 	 * 
 	 * @param owner
 	 *            The plugin owning the listeners
@@ -137,10 +138,11 @@ public final class PacketEventManager {
 	public synchronized static void unregisterPacketListener(Plugin owner) {
 		Validate.notNull(owner, "Plugin cannot be null");
 		Set<PacketListener> list = MAP_LISTENERS.remove(owner);
-		for (PacketListener p : list) {
-			SEND_LISTENERS.remove(p);
-			RETRIVE_LISTENERS.remove(p);
-		}
+		if (list != null)
+			for (PacketListener p : list) {
+				SEND_LISTENERS.remove(p);
+				RETRIVE_LISTENERS.remove(p);
+			}
 	}
 
 	/**
