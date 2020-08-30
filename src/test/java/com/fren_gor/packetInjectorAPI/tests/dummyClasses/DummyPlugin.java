@@ -95,7 +95,7 @@ public class DummyPlugin implements Plugin {
 
 	@Override
 	public boolean isEnabled() {
-		return false;
+		return true;
 	}
 
 	@Override

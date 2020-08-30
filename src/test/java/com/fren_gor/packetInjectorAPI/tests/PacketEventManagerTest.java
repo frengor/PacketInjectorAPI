@@ -174,6 +174,14 @@ public class PacketEventManagerTest {
 	}
 
 	@Test
+	@DisplayName("Unregister not-registered plugin Test")
+	void testUnregisteredPluginUnregisterEvent() {
+		Plugin p = new DummyPlugin();
+		assertDoesNotThrow(() -> PacketEventManager.unregisterPacketListener(p),
+				"PacketEventManager#unregisterPacketListener(Plugin) throws exceptions when not-registered plugin got unregistered");
+	}
+
+	@Test
 	@DisplayName("Unregister All Test")
 	void testUnrgisterAll() {
 		PacketEventManager.registerPacketListener(new DummyPlugin(), new FullListener());
