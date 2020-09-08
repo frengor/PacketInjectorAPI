@@ -24,7 +24,6 @@ package com.fren_gor.packetInjectorAPI;
 
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -32,9 +31,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.inventivetalent.update.spiget.SpigetUpdate;
-import org.inventivetalent.update.spiget.UpdateCallback;
-import org.inventivetalent.update.spiget.comparator.VersionComparator;
 
 import com.fren_gor.packetInjectorAPI.api.PacketEventManager;
 import com.fren_gor.packetInjectorAPI.api.PacketInjector;
@@ -105,12 +101,12 @@ public class PacketInjectorPlugin extends JavaPlugin implements Listener {
 
 		}
 
-		final SpigetUpdate updater = new SpigetUpdate(this, 57931);
-
+		/*final SpigetUpdate updater = new SpigetUpdate(this, 57931);
+		
 		// This converts a semantic version to an integer and checks if the
 		// updated version is greater
 		updater.setVersionComparator(VersionComparator.SEM_VER);
-
+		
 		updater.checkForUpdate(new UpdateCallback() {
 			@Override
 			public void updateAvailable(String newVersion, String downloadUrl, boolean hasDirectDownload) {
@@ -132,13 +128,13 @@ public class PacketInjectorPlugin extends JavaPlugin implements Listener {
 					}
 				}
 			}
-
+		
 			@Override
 			public void upToDate() {
 				//// Plugin is up-to-date
 				Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "PacketInjectorAPI is up to date!");
 			}
-		});
+		});*/
 
 		new Metrics(this, 57931);
 
