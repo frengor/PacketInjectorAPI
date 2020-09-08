@@ -153,6 +153,9 @@ public class PacketInjectorPlugin extends JavaPlugin implements Listener {
 
 			boolean upToDate = true;
 			for (int i = 0; i < max; i++) {
+				if (current[i] > online[i]) {
+					break;
+				}
 				if (current[i] < online[i]) {
 					upToDate = false;
 					break;
