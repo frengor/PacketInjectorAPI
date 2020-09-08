@@ -33,11 +33,11 @@
 			<url>https://repo.codemc.org/repository/maven-public</url>
 		</repository>
 
-		<!-- Spiget -->
-		<repository>
+		<!-- Spiget - Disabled at the moment -->
+		<!-- <repository>
 			<id>inventive-repo</id>
 			<url>https://repo.inventivetalent.org/content/groups/public/</url>
-		</repository>
+		</repository> -->
 	</repositories>
 
 	<dependencies>
@@ -65,13 +65,13 @@
 			<scope>compile</scope>
 		</dependency>
 
-		<!-- Spiget -->
-		<dependency>
+		<!-- Spiget - Disabled at the moment -->
+		<!-- <dependency>
 			<groupId>org.inventivetalent.spiget-update</groupId>
 			<artifactId>bukkit</artifactId>
 			<version>LATEST</version>
 			<scope>compile</scope>
-		</dependency>
+		</dependency>-->
 
 		<!-- Netty for 1.8+ -->
 		<dependency>
@@ -96,14 +96,6 @@
 			<artifactId>annotations</artifactId>
 			<version>19.0.0</version>
 			<scope>provided</scope>
-		</dependency>
-
-		<!-- Gson -->
-		<dependency>
-			<groupId>com.google.code.gson</groupId>
-			<artifactId>gson</artifactId>
-			<version>2.8.6</version>
-			<scope>compile</scope>
 		</dependency>
 
 		<!-- JUnit -->
@@ -155,9 +147,8 @@
 					<artifactSet>
 						<includes>
 							<include>it.unimi.dsi:fastutil</include>
-							<include>org.inventivetalent.spiget-update:bukkit</include>
+							<!-- <include>org.inventivetalent.spiget-update:bukkit</include> -->
 							<include>org.bstats:bstats-bukkit</include>
-							<include>com.google.code.gson:gson</include>
 						</includes>
 					</artifactSet>
 					<filters>
@@ -188,17 +179,13 @@
 							<pattern>org.bstats</pattern>
 							<shadedPattern>com.fren_gor.packetInjectorAPI.libs.bstats</shadedPattern>
 						</relocation>
-						<relocation>
+						<!-- <relocation>
 							<pattern>org.inventivetalent.update</pattern>
 							<shadedPattern>com.fren_gor.packetInjectorAPI.libs</shadedPattern>
-						</relocation>
+						</relocation> -->
 						<relocation>
 							<pattern>it.unimi.dsi</pattern>
 							<shadedPattern>com.fren_gor.packetInjectorAPI.libs</shadedPattern>
-						</relocation>
-						<relocation>
-							<pattern>com.google.gson</pattern>
-							<shadedPattern>com.fren_gor.packetInjectorAPI.libs.gson</shadedPattern>
 						</relocation>
 					</relocations>
 				</configuration>
