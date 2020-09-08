@@ -22,6 +22,12 @@
 
 package com.fren_gor.packetInjectorAPI;
 
+import java.io.InputStream;
+import java.net.URL;
+import java.util.Scanner;
+import java.util.function.BiConsumer;
+import java.util.logging.Logger;
+
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -29,6 +35,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -136,6 +143,30 @@ public class PacketInjectorPlugin extends JavaPlugin implements Listener {
 			}
 		});*/
 
+		getVersion(this, 57931, (version, rId) -> {
+
+			Logger logger = getLogger();
+			String[] currentS = this.getDescription().getVersion().split("\\.");
+			String[] onlineS = version.split("\\.");
+			int max = Math.max(currentS.length, onlineS.length);
+			int[] current = parseVersions(currentS, max), online = parseVersions(onlineS, max);
+
+			boolean upToDate = true;
+			for (int i = 0; i < max; i++) {
+				if (current[i] < online[i]) {
+					upToDate = false;
+					break;
+				}
+			}
+			if (upToDate) {
+				logger.info(getName() + " is up to date.");
+			} else {
+				logger.info("There is a new update available.");
+				logger.info("Download it at: https://www.spigotmc.org/resources/" + rId);
+			}
+
+		});
+
 		new Metrics(this, 57931);
 
 	}
@@ -152,6 +183,32 @@ public class PacketInjectorPlugin extends JavaPlugin implements Listener {
 		if (forceRestart)
 			Bukkit.getServer().shutdown();
 
+	}
+
+	private static void getVersion(final Plugin plugin, final int resourceId,
+			final BiConsumer<String, Integer> consumer) {
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+			try (InputStream inputStream = new URL("https://api.spigotmc.org/legacy/update.php?resource=" + resourceId)
+					.openStream(); Scanner scanner = new Scanner(inputStream)) {
+				if (scanner.hasNext()) {
+					consumer.accept(scanner.next(), resourceId);
+				}
+			} catch (Exception exception) {
+				plugin.getLogger().info("Cannot look for updates: " + exception.getMessage());
+			}
+		});
+	}
+
+	private static int[] parseVersions(String[] arr, int lenght) {
+		int[] ret = new int[lenght];
+		int i = 0;
+		for (; i < arr.length; i++) {
+			ret[i] = Integer.parseInt(arr[i]);
+		}
+		for (; i < lenght; i++) {
+			ret[i] = 0;
+		}
+		return ret;
 	}
 
 }
