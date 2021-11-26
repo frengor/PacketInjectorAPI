@@ -37,16 +37,22 @@
     </properties>
 
     <repositories>
-        <!-- This adds the Spigot Maven repository to the build -->
+        <!-- Spigot repo -->
         <repository>
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
 
-        <!-- BStats -->
+        <!-- BStats repo -->
         <repository>
             <id>CodeMC</id>
             <url>https://repo.codemc.org/repository/maven-public</url>
+        </repository>
+
+        <!-- fren_gor repo -->
+        <repository>
+            <id>fren_gor</id>
+            <url>https://nexus.frengor.com/repository/public/</url>
         </repository>
     </repositories>
 
