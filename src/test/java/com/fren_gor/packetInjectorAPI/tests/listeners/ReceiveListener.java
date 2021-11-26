@@ -20,14 +20,45 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //  SOFTWARE.
 
-package com.fren_gor.packetInjectorAPI.api.listeners;
+package com.fren_gor.packetInjectorAPI.tests.listeners;
 
-import com.fren_gor.packetInjectorAPI.api.events.PacketRetriveEvent;
+import static org.junit.jupiter.api.Assertions.*;
 
-@FunctionalInterface
-public interface PacketRetriveListener extends PacketListener {
+import java.util.Set;
+
+import com.fren_gor.packetInjectorAPI.api.listeners.PacketReceiveListener;
+
+public class ReceiveListener extends AbstractListener implements PacketReceiveListener {
 
 	@Override
-	void onRetrive(PacketRetriveEvent event);
+	public void checkSendCall() {
+		assertFalse(sendCalled, "SendEvent has been called when it shouldn't");
+	}
+
+	@Override
+	public void checkReceiveCall() {
+		assertTrue(receiveCalled, "ReceiveEvent hasn't been called when it should");
+	}
+
+	@Override
+	public boolean checkSendSet(Set<Object> set, Object internalListener) {
+		return !set.contains(internalListener);
+	}
+
+	@Override
+	public boolean checkReceiveSet(Set<Object> set, Object internalListener) {
+		return set.contains(internalListener);
+	}
+
+	@Override
+	public String sendMessage() {
+		// return "Send set doesn't contains listener when it should";
+		return "Send set contains listener when it shouldn't";
+	}
+
+	@Override
+	public String receiveMessage() {
+		return "Receive set doesn't contains listener when it should";
+	}
 
 }

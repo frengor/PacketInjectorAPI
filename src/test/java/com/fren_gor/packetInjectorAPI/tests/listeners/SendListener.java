@@ -26,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Set;
 
-import com.fren_gor.packetInjectorAPI.api.listeners.PacketListener;
 import com.fren_gor.packetInjectorAPI.api.listeners.PacketSendListener;
 
 public class SendListener extends AbstractListener implements PacketSendListener {
@@ -37,18 +36,18 @@ public class SendListener extends AbstractListener implements PacketSendListener
 	}
 
 	@Override
-	public void checkRetriveCall() {
-		assertFalse(retriveCalled, "RetriveEvent has been called when it shouldn't");
+	public void checkReceiveCall() {
+		assertFalse(receiveCalled, "ReceiveEvent has been called when it shouldn't");
 	}
 
 	@Override
-	public boolean checkSendSet(Set<PacketListener> set) {
-		return set.contains(this);
+	public boolean checkSendSet(Set<Object> set, Object internalListener) {
+		return set.contains(internalListener);
 	}
 
 	@Override
-	public boolean checkRetriveSet(Set<PacketListener> set) {
-		return !set.contains(this);
+	public boolean checkReceiveSet(Set<Object> set, Object internalListener) {
+		return !set.contains(internalListener);
 	}
 
 	@Override
@@ -57,9 +56,9 @@ public class SendListener extends AbstractListener implements PacketSendListener
 	}
 
 	@Override
-	public String retriveMessage() {
-		// return "Retrive set doesn't contains listener when it should";
-		return "Retrive set contains listener when it shouldn't";
+	public String receiveMessage() {
+		// return "Receive set doesn't contain listener when it should";
+		return "Receive set contains listener when it shouldn't";
 	}
 
 }

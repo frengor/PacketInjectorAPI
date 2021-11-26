@@ -1,6 +1,6 @@
 // MIT License
 //
-// Copyright (c) 2021 fren_gor
+// Copyright (c) 2020 fren_gor
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,36 +20,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package com.fren_gor.packetInjectorAPI.api.events;
+package com.comphenix.tinyprotocol;
 
-import org.bukkit.event.Cancellable;
+import com.fren_gor.packetInjectorAPI.tests.PacketEventManagerTest;
+import io.netty.channel.Channel;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.Nullable;
 
-/**
- * Abstract common class for packet events.
- *
- * @author fren_gor
- */
-public abstract class PacketEvent implements Cancellable {
+public abstract class TinyProtocol {
 
-    private boolean cancelled = false;
-
-    /**
-     * Gets whether the packet is cancelled.
-     *
-     * @return Whether the packer is cancelled.
-     */
-    @Override
-    public boolean isCancelled() {
-        return cancelled;
+    static {
+        PacketEventManagerTest.initialized = true;
     }
 
-    /**
-     * Sets the packet cancelled status.
-     *
-     * @param cancelled Whether to cancel the packet or not.
-     */
-    @Override
-    public void setCancelled(boolean cancelled) {
-        this.cancelled = cancelled;
+    public TinyProtocol(Plugin plugin) {
     }
+
+    public abstract Object onPacketOutAsync(@Nullable Player receiver, Channel channel, Object packet);
+
+    public abstract Object onPacketInAsync(@Nullable Player sender, Channel channel, Object packet);
+
+    protected abstract String getHandlerName();
 }

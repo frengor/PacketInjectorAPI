@@ -24,13 +24,13 @@ package com.fren_gor.packetInjectorAPI.tests.listeners;
 
 import java.util.Set;
 
-import com.fren_gor.packetInjectorAPI.api.events.PacketRetriveEvent;
+import com.fren_gor.packetInjectorAPI.api.events.PacketReceiveEvent;
 import com.fren_gor.packetInjectorAPI.api.events.PacketSendEvent;
 import com.fren_gor.packetInjectorAPI.api.listeners.PacketListener;
 
 public abstract class AbstractListener implements PacketListener {
 
-	protected boolean sendCalled, retriveCalled;
+	protected boolean sendCalled, receiveCalled;
 
 	@Override
 	public void onSend(PacketSendEvent event) {
@@ -38,20 +38,20 @@ public abstract class AbstractListener implements PacketListener {
 	}
 
 	@Override
-	public void onRetrive(PacketRetriveEvent event) {
-		retriveCalled = true;
+	public void onReceive(PacketReceiveEvent event) {
+		receiveCalled = true;
 	}
 
 	public abstract void checkSendCall();
 
-	public abstract void checkRetriveCall();
+	public abstract void checkReceiveCall();
 
-	public abstract boolean checkSendSet(Set<PacketListener> set);
+	public abstract boolean checkSendSet(Set<Object> set, Object internalListener);
 
-	public abstract boolean checkRetriveSet(Set<PacketListener> set);
+	public abstract boolean checkReceiveSet(Set<Object> set, Object internalListener);
 
 	public abstract String sendMessage();
 
-	public abstract String retriveMessage();
+	public abstract String receiveMessage();
 
 }

@@ -26,8 +26,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Set;
 
-import com.fren_gor.packetInjectorAPI.api.listeners.PacketListener;
-
 public class FullListener extends AbstractListener {
 
 	@Override
@@ -36,18 +34,18 @@ public class FullListener extends AbstractListener {
 	}
 
 	@Override
-	public void checkRetriveCall() {
-		assertTrue(retriveCalled, "RetriveEvent hasn't been called when it should");
+	public void checkReceiveCall() {
+		assertTrue(receiveCalled, "ReceiveEvent hasn't been called when it should");
 	}
 
 	@Override
-	public boolean checkSendSet(Set<PacketListener> set) {
-		return set.contains(this);
+	public boolean checkSendSet(Set<Object> set, Object internalListener) {
+		return set.contains(internalListener);
 	}
 
 	@Override
-	public boolean checkRetriveSet(Set<PacketListener> set) {
-		return set.contains(this);
+	public boolean checkReceiveSet(Set<Object> set, Object internalListener) {
+		return set.contains(internalListener);
 	}
 	
 	@Override
@@ -56,8 +54,8 @@ public class FullListener extends AbstractListener {
 	}
 
 	@Override
-	public String retriveMessage() {
-		return "Retrive set doesn't contains listener when it should";
+	public String receiveMessage() {
+		return "Receive set doesn't contains listener when it should";
 	}
 
 }

@@ -2,6 +2,26 @@ name: ${project.name}
 main: com.fren_gor.packetInjectorAPI.PacketInjectorPlugin
 version: ${project.version}
 author: fren_gor
+website: ${project.url}
 description: ${project.description}
 
 api-version: 1.13
+
+commands:
+  packetinjectorapi:
+    description: PacketInjectorAPI main command
+    permission: packetinjectorapi.command
+
+permissions:
+  packetinjectorapi.*:
+    description: Every permission of ${project.name}
+    default: op
+    children:
+      packetinjectorapi.command: true
+      packetinjectorapi.packetlogger: true
+  packetinjectorapi.command:
+    description: Permission to execute /packetinjectorapi
+    default: op
+  packetinjectorapi.packetlogger:
+    description: Permission to execute /packetinjectorapi packetlogger
+    default: op

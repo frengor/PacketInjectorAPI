@@ -1,251 +1,222 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.frengor</groupId>
-	<artifactId>packetInjectorAPI</artifactId>
-	<version>2.0.1</version>
-	<packaging>jar</packaging>
+    <groupId>com.frengor</groupId>
+    <artifactId>packetinjectorapi</artifactId>
+    <version>3.0.0</version>
+    <packaging>jar</packaging>
 
-	<name>PacketInjectorAPI</name>
-	<description>Library for working with minecraft packets</description>
+    <name>PacketInjectorAPI</name>
+    <description>Library for working with minecraft packets</description>
+    <url>https://github.com/frengor/PacketInjectorAPI</url>
 
-	<properties>
-		<!-- Project Properties -->
-		<projectEncoding>UTF-8</projectEncoding>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
-	</properties>
+    <developers>
+        <developer>
+            <id>fren_gor</id>
+            <url>http://www.frengor.com</url>
+        </developer>
+    </developers>
 
-	<repositories>
-		<!-- This adds the Spigot Maven repository to the build -->
-		<repository>
-			<id>spigot-repo</id>
-			<url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
-		</repository>
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/licenses/MIT</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
-		<!-- BStats -->
-		<repository>
-			<id>CodeMC</id>
-			<url>https://repo.codemc.org/repository/maven-public</url>
-		</repository>
+    <properties>
+        <!-- Project Properties -->
+        <projectEncoding>UTF-8</projectEncoding>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
 
-		<!-- Spiget - Disabled at the moment -->
-		<!-- <repository>
-			<id>inventive-repo</id>
-			<url>https://repo.inventivetalent.org/content/groups/public/</url>
-		</repository> -->
-	</repositories>
+    <repositories>
+        <!-- This adds the Spigot Maven repository to the build -->
+        <repository>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+        </repository>
 
-	<dependencies>
-		<!-- Lombok -->
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<version>1.18.12</version>
-			<scope>provided</scope>
-		</dependency>
+        <!-- BStats -->
+        <repository>
+            <id>CodeMC</id>
+            <url>https://repo.codemc.org/repository/maven-public</url>
+        </repository>
+    </repositories>
 
-		<!--This adds the Spigot API artifact to the build -->
-		<dependency>
-			<groupId>org.spigotmc</groupId>
-			<artifactId>spigot-api</artifactId>
-			<version>1.16.2-R0.1-SNAPSHOT</version>
-			<scope>provided</scope>
-		</dependency>
+    <distributionManagement>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <url>https://nexus.frengor.com/repository/snapshots/</url>
+        </snapshotRepository>
+        <repository>
+            <id>releases</id>
+            <url>https://nexus.frengor.com/repository/releases/</url>
+        </repository>
+    </distributionManagement>
 
-		<!-- BStats -->
-		<dependency>
-			<groupId>org.bstats</groupId>
-			<artifactId>bstats-bukkit</artifactId>
-			<version>1.7</version>
-			<scope>compile</scope>
-		</dependency>
+    <dependencies>
+        <!--This adds the Spigot API artifact to the build -->
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.17.1-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
 
-		<!-- Spiget - Disabled at the moment -->
-		<!-- <dependency>
-			<groupId>org.inventivetalent.spiget-update</groupId>
-			<artifactId>bukkit</artifactId>
-			<version>LATEST</version>
-			<scope>compile</scope>
-		</dependency>-->
+        <!-- BStats -->
+        <dependency>
+            <groupId>org.bstats</groupId>
+            <artifactId>bstats-bukkit</artifactId>
+            <version>2.2.1</version>
+            <scope>compile</scope>
+        </dependency>
 
-		<!-- Netty for 1.8+ -->
-		<dependency>
-			<groupId>io.netty</groupId>
-			<artifactId>netty-all</artifactId>
-			<version>4.1.51.Final</version>
-			<scope>provided</scope>
-			<optional>true</optional>
-		</dependency>
+        <!-- Netty for 1.8+ -->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>4.1.70.Final</version>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
 
-		<!-- FastUtil -->
-		<dependency>
-			<groupId>it.unimi.dsi</groupId>
-			<artifactId>fastutil</artifactId>
-			<version>8.4.1</version>
-			<scope>compile</scope>
-		</dependency>
+        <!-- JetBrains Annotations -->
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>22.0.0</version>
+            <scope>provided</scope>
+        </dependency>
 
-		<!-- JetBrains Annotations -->
-		<dependency>
-			<groupId>org.jetbrains</groupId>
-			<artifactId>annotations</artifactId>
-			<version>19.0.0</version>
-			<scope>provided</scope>
-		</dependency>
+        <!-- TinyProtocol Updated for 1.17+ -->
+        <dependency>
+            <groupId>com.frengor</groupId>
+            <artifactId>tinyprotocol</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
 
-		<!-- JUnit -->
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-api</artifactId>
-			<version>5.6.2</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-engine</artifactId>
-			<version>5.6.2</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+        <!-- JUnit -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.8.1</version>
+            <scope>test</scope>
+        </dependency>
 
-	<build>
-		<finalName>${project.name}-${project.version}</finalName>
-		<defaultGoal>clean install</defaultGoal>
-		<resources>
-			<resource>
-				<targetPath>.</targetPath>
-				<filtering>false</filtering>
-				<directory>.</directory>
-				<includes>
-					<include>LICENSE</include>
-				</includes>
-			</resource>
-			<resource>
-				<targetPath>.</targetPath>
-				<filtering>true</filtering>
-				<directory>src/main/resources/</directory>
-			</resource>
-		</resources>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.22.2</version>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-				<version>3.1.0</version>
-				<configuration>
-					<createDependencyReducedPom>false</createDependencyReducedPom>
-					<minimizeJar>true</minimizeJar>
-					<artifactSet>
-						<includes>
-							<include>it.unimi.dsi:fastutil</include>
-							<!-- <include>org.inventivetalent.spiget-update:bukkit</include> -->
-							<include>org.bstats:bstats-bukkit</include>
-						</includes>
-					</artifactSet>
-					<filters>
-						<filter>
-							<artifact>it.unimi.dsi:fastutil</artifact>
-							<includes>
-								<include>it/unimi/dsi/fastutil/objects/*</include>
-								<include>it/unimi/dsi/fastutil/*.class</include>
-							</includes>
-							<excludes>
-								<exclude>it/unimi/dsi/fastutil/*/*Int*</exclude>
-								<exclude>it/unimi/dsi/fastutil/*/*Boolean*</exclude>
-								<exclude>it/unimi/dsi/fastutil/*/*Byte*</exclude>
-								<exclude>it/unimi/dsi/fastutil/*/*Short*</exclude>
-								<exclude>it/unimi/dsi/fastutil/*/*Float*</exclude>
-								<exclude>it/unimi/dsi/fastutil/*/*Double*</exclude>
-								<exclude>it/unimi/dsi/fastutil/*/*Long*</exclude>
-								<exclude>it/unimi/dsi/fastutil/*/*Char*</exclude>
+        <!-- Mock Bukkit -->
+        <dependency>
+            <groupId>com.github.seeseemelk</groupId>
+            <artifactId>MockBukkit-v1.17</artifactId>
+            <version>1.10.3</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
-								<exclude>it/unimi/dsi/fastutil/*/*Big*</exclude>
-								<exclude>it/unimi/dsi/fastutil/*/*Synchronized*</exclude>
-								<exclude>it/unimi/dsi/fastutil/*/*Unmodifiable*</exclude>
-							</excludes>
-						</filter>
-					</filters>
-					<relocations>
-						<relocation>
-							<pattern>org.bstats</pattern>
-							<shadedPattern>com.fren_gor.packetInjectorAPI.libs.bstats</shadedPattern>
-						</relocation>
-						<!-- <relocation>
-							<pattern>org.inventivetalent.update</pattern>
-							<shadedPattern>com.fren_gor.packetInjectorAPI.libs</shadedPattern>
-						</relocation> -->
-						<relocation>
-							<pattern>it.unimi.dsi</pattern>
-							<shadedPattern>com.fren_gor.packetInjectorAPI.libs</shadedPattern>
-						</relocation>
-					</relocations>
-				</configuration>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.projectlombok</groupId>
-				<artifactId>lombok-maven-plugin</artifactId>
-				<version>1.18.12.0</version>
-				<executions>
-					<execution>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>delombok</goal>
-						</goals>
-						<configuration>
-							<sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
-							<outputDirectory>${project.build.directory}/delombok</outputDirectory>
-							<addOutputDirectory>false</addOutputDirectory>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>jar-no-fork</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.2.0</version>
-				<executions>
-					<execution>
-						<id>delombok</id>
-						<phase>package</phase>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<sourcepath>${project.build.directory}/delombok</sourcepath>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+    <build>
+        <finalName>${project.name}-${project.version}</finalName>
+        <defaultGoal>clean install</defaultGoal>
+
+        <resources>
+            <resource>
+                <filtering>false</filtering>
+                <directory>.</directory>
+                <includes>
+                    <include>LICENSE</include>
+                </includes>
+            </resource>
+            <resource>
+                <filtering>true</filtering>
+                <directory>src/main/resources/</directory>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.2</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.3.0-SNAPSHOT</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <minimizeJar>false</minimizeJar>
+                    <relocations>
+                        <relocation>
+                            <pattern>org.bstats</pattern>
+                            <shadedPattern>com.fren_gor.packetInjectorAPI.libs.bstats</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.comphenix.tinyprotocol</pattern>
+                            <shadedPattern>com.fren_gor.packetInjectorAPI.libs.tinyProtocol</shadedPattern>
+                        </relocation>
+                    </relocations>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.2.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.3.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <quiet>true</quiet>
+                    <links>
+                        <link>https://javadoc.io/doc/org.jetbrains/annotations/22.0.0/</link>
+                        <link>https://hub.spigotmc.org/javadocs/spigot/</link>
+                        <link>https://netty.io/4.1/api/</link>
+                    </links>
+                    <bottom>
+                        <!-- Hacky way to insert custom css without modifying the full css style file -->
+                        <![CDATA[<style>main a[href*="://"]::after{content: none;}</style>Copyright &#169; {inceptionYear}&#x2013;{currentYear}. All rights reserved.]]>
+                    </bottom>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!-- Maven repo for snapshot plugins -->
+    <pluginRepositories>
+        <pluginRepository>
+            <id>maven-snapshots</id>
+            <url>https://repository.apache.org/content/repositories/snapshots/</url>
+        </pluginRepository>
+    </pluginRepositories>
 
 </project>

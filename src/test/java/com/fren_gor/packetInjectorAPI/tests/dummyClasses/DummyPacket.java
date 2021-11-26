@@ -20,20 +20,8 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //  SOFTWARE.
 
-package com.fren_gor.packetInjectorAPI.api;
+package com.fren_gor.packetInjectorAPI.tests.dummyClasses;
 
-import org.bukkit.entity.Player;
+public class DummyPacket {
 
-public interface PacketInjector {
-
-	PacketHandler addPlayer(Player p);
-
-	void removePlayer(Player p);
-
-	PacketHandler getHandler(Player p);
-	
-	void sendPacket(Player p, Object packet) throws Exception;
-
-	void sendPacketToServer(Player p, Object packet) throws Exception;
-	
 }

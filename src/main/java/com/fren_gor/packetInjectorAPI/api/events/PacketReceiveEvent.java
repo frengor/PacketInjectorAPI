@@ -30,11 +30,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 /**
- * Event fired when a packet is sent to a {@link Player}.
+ * Event fired when a packet is received from a {@link Player}.
  *
  * @author fren_gor
  */
-public final class PacketSendEvent extends PacketEvent {
+public final class PacketReceiveEvent extends PacketEvent {
 
     private final Player player;
     private final Channel channel;
@@ -42,13 +42,13 @@ public final class PacketSendEvent extends PacketEvent {
     private Object packet;
 
     /**
-     * Creates a new {@code PacketSendEvent}.
+     * Creates a new {@code PacketReceiveEvent}.
      *
-     * @param player The player to whom the packet is sent, or {@code null} if the packet is a login, status, or handshake packet.
+     * @param player The player who sent the packet, or {@code null} if the packet is a login, status, or handshake packet.
      * @param channel The netty channel.
      * @param packet The packet.
      */
-    public PacketSendEvent(@Nullable Player player, Channel channel, Object packet) {
+    public PacketReceiveEvent(@Nullable Player player, Channel channel, Object packet) {
         this.player = player;
         this.channel = Objects.requireNonNull(channel, "Channel is null.");
         this.packet = Objects.requireNonNull(packet, "Packet is null.");
@@ -56,9 +56,9 @@ public final class PacketSendEvent extends PacketEvent {
     }
 
     /**
-     * Gets the player to whom the packet is sent.
+     * Gets the player who sent the packet.
      *
-     * @return The player to whom the packet is sent, or {@code null} if the packet is a login, status, or handshake packet.
+     * @return The player who sent the packet, or {@code null} if the packet is a login, status, or handshake packet.
      */
     @Nullable
     public Player getPlayer() {
@@ -94,7 +94,7 @@ public final class PacketSendEvent extends PacketEvent {
     }
 
     /**
-     * Sets the packet to be sent instead of the old one.
+     * Sets the packet to be received instead of the old one.
      *
      * @param packet The packet. Must be not {@code null}.
      * @return The old packet.
@@ -111,6 +111,7 @@ public final class PacketSendEvent extends PacketEvent {
      * @param field The field name.
      * @param value The new value of the field.
      * @return {@code true} if the value has been set correctly, {@code false} otherwise.
+     * @see ReflectionUtil#setField(Object, String, Object)
      */
     public boolean setValue(String field, Object value) {
         return ReflectionUtil.setField(packet, Objects.requireNonNull(field, "Field is null."), value);
@@ -121,6 +122,7 @@ public final class PacketSendEvent extends PacketEvent {
      *
      * @param field The field name.
      * @return The value of the field. {@code null} if
+     * @see ReflectionUtil#getField(Object, String)
      */
     public Object getValue(String field) {
         return ReflectionUtil.getField(packet, Objects.requireNonNull(field, "Field is null."));

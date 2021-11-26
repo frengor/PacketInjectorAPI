@@ -22,175 +22,194 @@
 
 package com.fren_gor.packetInjectorAPI.tests;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.util.Map;
-import java.util.Set;
-
+import be.seeseemelk.mockbukkit.MockBukkit;
+import com.comphenix.tinyprotocol.TinyProtocol;
+import com.fren_gor.packetInjectorAPI.api.PacketEventManager;
+import com.fren_gor.packetInjectorAPI.api.PacketInjectorAPI;
+import com.fren_gor.packetInjectorAPI.api.listeners.PacketListener;
+import com.fren_gor.packetInjectorAPI.tests.dummyClasses.DummyPacket;
+import com.fren_gor.packetInjectorAPI.tests.dummyClasses.SimpleChannel;
+import com.fren_gor.packetInjectorAPI.tests.listeners.AbstractListener;
+import com.fren_gor.packetInjectorAPI.tests.listeners.FullListener;
+import com.fren_gor.packetInjectorAPI.tests.listeners.ReceiveListener;
+import com.fren_gor.packetInjectorAPI.tests.listeners.SendListener;
+import org.bukkit.Bukkit;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.plugin.Plugin;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import com.fren_gor.packetInjectorAPI.api.PacketEventManager;
-import com.fren_gor.packetInjectorAPI.api.events.PacketRetriveEvent;
-import com.fren_gor.packetInjectorAPI.api.events.PacketSendEvent;
-import com.fren_gor.packetInjectorAPI.api.listeners.PacketListener;
-import com.fren_gor.packetInjectorAPI.listeners.PluginDisable;
-import com.fren_gor.packetInjectorAPI.tests.dummyClasses.DummyPlugin;
-import com.fren_gor.packetInjectorAPI.tests.dummyClasses.PacketPlayIn;
-import com.fren_gor.packetInjectorAPI.tests.dummyClasses.PacketPlayOut;
-import com.fren_gor.packetInjectorAPI.tests.listeners.AbstractListener;
-import com.fren_gor.packetInjectorAPI.tests.listeners.FullListener;
-import com.fren_gor.packetInjectorAPI.tests.listeners.RetriveListener;
-import com.fren_gor.packetInjectorAPI.tests.listeners.SendListener;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Constructor;
+import java.util.Map;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PacketEventManagerTest {
 
-	private static DummyPlugin pl;
-	private static AbstractListener[] listeners = new AbstractListener[3];
-	private static Map<Plugin, Set<PacketListener>> MAP_LISTENERS;
-	private static Set<PacketListener> SEND_LISTENERS, RETRIVE_LISTENERS;
+    public static boolean initialized;
 
-	@SuppressWarnings("unchecked")
-	@BeforeAll
-	static void init() {
-		pl = new DummyPlugin();
-		MAP_LISTENERS = (Map<Plugin, Set<PacketListener>>) ReflectionUtil.getField(PacketEventManager.class,
-				"MAP_LISTENERS");
-		SEND_LISTENERS = (Set<PacketListener>) ReflectionUtil.getField(PacketEventManager.class, "SEND_LISTENERS");
-		RETRIVE_LISTENERS = (Set<PacketListener>) ReflectionUtil.getField(PacketEventManager.class,
-				"RETRIVE_LISTENERS");
+    private static Constructor<?> internalListenerConstructor;
 
-		listeners[0] = new FullListener();
+    private PacketInjectorAPI api;
+    private Plugin pl;
+    private TinyProtocol packetHandler;
+    private final AbstractListener[] listeners = new AbstractListener[3];
+    private Map<Plugin, Set<Object>> MAP_LISTENERS;
+    private Set<Object> SEND_LISTENERS, RECEIVE_LISTENERS;
 
-		listeners[1] = new SendListener();
+    @BeforeAll
+    static void init() throws Exception {
+        Class.forName("com.comphenix.tinyprotocol.TinyProtocol");
 
-		listeners[2] = new RetriveListener();
-	}
+        assertTrue(initialized, "Cannot load TinyProtocol dummy class for tests.");
 
-	@Test
-	@DisplayName("Null Tests")
-	void testNull() {
+        internalListenerConstructor = Class.forName("com.fren_gor.packetInjectorAPI.api.PacketEventManager$RegisteredListener").getConstructor(PacketListener.class);
+        internalListenerConstructor.setAccessible(true);
+    }
 
-		assertThrows(IllegalArgumentException.class,
-				() -> PacketEventManager.registerPacketListener(null, new PacketListener() {
-				}), "Plugin may be null in register");
-		assertThrows(IllegalArgumentException.class, () -> PacketEventManager.registerPacketListener(pl, null),
-				"PacketListener may be null in register");
-		assertThrows(IllegalArgumentException.class,
-				() -> PacketEventManager.unregisterPacketListener((PacketListener) null),
-				"PacketListener may be null in unregister");
-		assertThrows(IllegalArgumentException.class, () -> PacketEventManager.unregisterPacketListener((Plugin) null),
-				"Plugin may be null in unregister");
-		assertThrows(IllegalArgumentException.class, () -> PacketEventManager.callRetriveEvent(null),
-				"PacketRetriveEvent may be null in call");
-		assertThrows(IllegalArgumentException.class, () -> PacketEventManager.callSendEvent(null),
-				"PacketSendEvent may be null in call");
+    @BeforeEach
+    @SuppressWarnings("unchecked")
+    void setUp() throws Exception {
+        MockBukkit.mock();
+        pl = MockBukkit.createMockPlugin();
+        api = new PacketInjectorAPI(pl);
 
-	}
+        packetHandler = (TinyProtocol) setAccessible(PacketInjectorAPI.class.getDeclaredField("handler")).get(api);
 
-	@Test
-	@DisplayName("Register, Call, and Unregister Test")
-	void testRegister() {
-		for (int i = 0; i < listeners.length; i++)
-			internalTestRegister(i);
+        MAP_LISTENERS = (Map<Plugin, Set<Object>>) setAccessible(PacketEventManager.class.getDeclaredField("MAP_LISTENERS")).get(api.getEventManager());
+        SEND_LISTENERS = (Set<Object>) setAccessible(PacketEventManager.class.getDeclaredField("SEND_LISTENERS")).get(api.getEventManager());
+        RECEIVE_LISTENERS = (Set<Object>) setAccessible(PacketEventManager.class.getDeclaredField("RECEIVE_LISTENERS")).get(api.getEventManager());
 
-		PacketEventManager.callSendEvent(new PacketSendEvent(null, new PacketPlayOut()));
-		PacketEventManager.callRetriveEvent(new PacketRetriveEvent(null, new PacketPlayIn()));
+        listeners[0] = new FullListener();
+        listeners[1] = new SendListener();
+        listeners[2] = new ReceiveListener();
+    }
 
-		for (int i = 0; i < listeners.length; i++)
-			internalCallTest(i);
+    private <A extends AccessibleObject> A setAccessible(A a) throws Exception {
+        a.setAccessible(true);
+        return a;
+    }
 
-		for (int i = 0; i < listeners.length; i++)
-			internalTestUnregister(i);
+    @AfterEach
+    void tearDown() {
+        MockBukkit.unmock();
+    }
 
-		assertFalse(MAP_LISTENERS.containsKey(pl), "Plugin hasn't been removed from map");
+    @Test
+    @DisplayName("Null Tests")
+    void testNull() {
+        PacketListener listener = new FullListener();
 
-	}
+        assertThrows(NullPointerException.class, () -> api.getEventManager().registerPacketListener(null, listener), "Plugin may be null in register");
+        assertThrows(NullPointerException.class, () -> api.getEventManager().registerPacketListener(pl, null), "PacketListener may be null in register");
+        assertThrows(NullPointerException.class, () -> api.getEventManager().unregisterPacketListener((PacketListener) null), "PacketListener may be null in unregister");
+        assertThrows(NullPointerException.class, () -> api.getEventManager().unregisterPacketListener((Plugin) null), "Plugin may be null in unregister");
+    }
 
-	void internalTestRegister(int index) {
+    @Test
+    @DisplayName("Register, Call, and Unregister Test")
+    void testRegister() throws Exception {
+        for (int i = 0; i < listeners.length; i++)
+            internalTestRegister(i);
 
-		AbstractListener listener = listeners[index];
+        packetHandler.onPacketOutAsync(null, new SimpleChannel(), new DummyPacket());
+        packetHandler.onPacketInAsync(null, new SimpleChannel(), new DummyPacket());
 
-		PacketEventManager.registerPacketListener(pl, listener);
+        for (int i = 0; i < listeners.length; i++)
+            internalCallTest(i);
 
-		assertTrue(MAP_LISTENERS.containsKey(pl), "Plugin isn't being registered [" + index + "]");
+        for (int i = 0; i < listeners.length; i++)
+            internalTestUnregister(i);
 
-		assertTrue(MAP_LISTENERS.get(pl).contains(listener), "Listener isn't being registered [" + index + "]");
+        assertFalse(MAP_LISTENERS.containsKey(pl), "Plugin hasn't been removed from map");
+    }
 
-		assertTrue(listener.checkSendSet(SEND_LISTENERS), listener.sendMessage() + " [" + index + "]");
-		assertTrue(listener.checkRetriveSet(RETRIVE_LISTENERS), listener.retriveMessage() + " [" + index + "]");
+    void internalTestRegister(int index) throws Exception {
+        AbstractListener listener = listeners[index];
 
-	}
+        api.getEventManager().registerPacketListener(pl, listener);
 
-	void internalTestUnregister(int index) {
+        assertTrue(MAP_LISTENERS.containsKey(pl), "Plugin hasn't been registered [" + index + "]");
 
-		AbstractListener listener = listeners[index];
+        Object internalListener = internalListenerConstructor.newInstance(listener);
+        assertTrue(MAP_LISTENERS.get(pl).contains(internalListener), "Listener hasn't been registered [" + index + "]");
 
-		PacketEventManager.unregisterPacketListener(listener);
+        assertTrue(listener.checkSendSet(SEND_LISTENERS, internalListener), listener.sendMessage() + " [" + index + "]");
+        assertTrue(listener.checkReceiveSet(RECEIVE_LISTENERS, internalListener), listener.receiveMessage() + " [" + index + "]");
+    }
 
-		if (MAP_LISTENERS.containsKey(pl)) {
-			assertFalse(MAP_LISTENERS.get(pl).contains(listener), "Listener hasn't been removed [" + index + "]");
-		}
+    void internalTestUnregister(int index) throws Exception {
+        AbstractListener listener = listeners[index];
 
-		assertFalse(SEND_LISTENERS.contains(listener), "Send set contains listener when it shouldn't [" + index + "]");
-		assertFalse(RETRIVE_LISTENERS.contains(listener),
-				"Retrive set contains listener when it shouldn't [" + index + "]");
+        api.getEventManager().unregisterPacketListener(listener);
 
-	}
+        Object internalListener = internalListenerConstructor.newInstance(listener);
+        if (MAP_LISTENERS.containsKey(pl)) {
+            assertFalse(MAP_LISTENERS.get(pl).contains(internalListener), "Listener hasn't been removed [" + index + "]");
+        }
 
-	void internalCallTest(int index) {
+        assertFalse(SEND_LISTENERS.contains(internalListener), "Send set contains listener when it shouldn't [" + index + "]");
+        assertFalse(RECEIVE_LISTENERS.contains(internalListener), "Receive set contains listener when it shouldn't [" + index + "]");
+    }
 
-		AbstractListener listener = listeners[index];
+    void internalCallTest(int index) {
+        AbstractListener listener = listeners[index];
 
-		listener.checkSendCall();
-		listener.checkRetriveCall();
+        listener.checkSendCall();
+        listener.checkReceiveCall();
+    }
 
-	}
+    @Test
+    @DisplayName("Plugin unregister Test")
+    void testPluginUnregister() throws Exception {
+        PacketListener l = new FullListener();
+        api.getEventManager().registerPacketListener(pl, l);
 
-	@Test
-	@DisplayName("Plugin unregister Test")
-	void testPluginUnregister() {
-		PacketListener l = new FullListener();
-		PacketEventManager.registerPacketListener(pl, l);
+        api.getEventManager().unregisterPacketListener(pl);
 
-		PacketEventManager.unregisterPacketListener(pl);
+        assertFalse(MAP_LISTENERS.containsKey(pl), "Plugin hasn't been unregistered");
 
-		assertFalse(MAP_LISTENERS.containsKey(pl), "Plugin hasn't been unregistered");
+        Object internalListener = internalListenerConstructor.newInstance(l);
+        assertFalse(SEND_LISTENERS.contains(internalListener), "Plugin unregistration left listener in send map");
+        assertFalse(RECEIVE_LISTENERS.contains(internalListener), "Plugin unregistration left listener in receive map");
+    }
 
-		assertFalse(SEND_LISTENERS.contains(l), "Plugin unregistration left listener in send map");
-		assertFalse(RETRIVE_LISTENERS.contains(l), "Plugin unregistration left listener in retrive map");
-	}
+    @Test
+    @DisplayName("PluginDisableEvent Test")
+    void testPluginDisableEvent() {
+        final Plugin p = MockBukkit.createMockPlugin();
+        api.getEventManager().registerPacketListener(p, new FullListener());
+        Bukkit.getPluginManager().callEvent(new PluginDisableEvent(pl));
+        MockBukkit.getMock().getPluginManager().assertEventFired(PluginDisableEvent.class);
+        assertFalse(MAP_LISTENERS.containsKey(p), "Plugin hasn't been unregistered by disable event");
+    }
 
-	@Test
-	@DisplayName("PluginDisableEvent Test")
-	void testPluginDisableEvent() {
-		Plugin p = new DummyPlugin();
-		PacketEventManager.registerPacketListener(p, new FullListener());
-		ReflectionUtil.invoke(new PluginDisable(), "onPluginDisabling", new PluginDisableEvent(p));
-		assertFalse(MAP_LISTENERS.containsKey(p), "Plugin hasn't been unregistered by disable event");
-	}
+    @Test
+    @DisplayName("Unregister not-registered plugin Test")
+    void testUnregisteredPluginUnregisterEvent() {
+        assertDoesNotThrow(() -> api.getEventManager().unregisterPacketListener(MockBukkit.createMockPlugin()), "PacketEventManager#unregisterPacketListener(Plugin) throws exceptions when not-registered plugin gets unregistered");
+    }
 
-	@Test
-	@DisplayName("Unregister not-registered plugin Test")
-	void testUnregisteredPluginUnregisterEvent() {
-		Plugin p = new DummyPlugin();
-		assertDoesNotThrow(() -> PacketEventManager.unregisterPacketListener(p),
-				"PacketEventManager#unregisterPacketListener(Plugin) throws exceptions when not-registered plugin got unregistered");
-	}
+    @Test
+    @DisplayName("Unregister All Test")
+    void testUnregisterAll() {
+        api.getEventManager().registerPacketListener(MockBukkit.createMockPlugin(), new FullListener());
+        for (AbstractListener listener : listeners) {
+            api.getEventManager().registerPacketListener(pl, listener);
+        }
+        api.getEventManager().unregisterEveryPacketListener();
 
-	@Test
-	@DisplayName("Unregister All Test")
-	void testUnrgisterAll() {
-		PacketEventManager.registerPacketListener(new DummyPlugin(), new FullListener());
-		for (int i = 0; i < listeners.length; i++)
-			PacketEventManager.registerPacketListener(pl, listeners[i]);
-		PacketEventManager.unregisterEveryPacketListener();
-		assertTrue(MAP_LISTENERS.size() == 0, "At least one plugin hasn't been unregistered");
-		assertTrue(SEND_LISTENERS.size() == 0, "At least one send listener hasn't been unregistered");
-		assertTrue(RETRIVE_LISTENERS.size() == 0, "At least one retrive listener hasn't been unregistered");
-	}
-
+        assertEquals(0, MAP_LISTENERS.size(), "At least one plugin hasn't been unregistered");
+        assertEquals(0, SEND_LISTENERS.size(), "At least one send listener hasn't been unregistered");
+        assertEquals(0, RECEIVE_LISTENERS.size(), "At least one receive listener hasn't been unregistered");
+    }
 }

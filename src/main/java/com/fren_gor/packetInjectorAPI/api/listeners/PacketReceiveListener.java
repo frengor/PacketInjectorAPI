@@ -20,36 +20,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package com.fren_gor.packetInjectorAPI.api.events;
+package com.fren_gor.packetInjectorAPI.api.listeners;
 
-import org.bukkit.event.Cancellable;
+import com.fren_gor.packetInjectorAPI.api.events.PacketReceiveEvent;
 
 /**
- * Abstract common class for packet events.
+ * Listener to {@link PacketReceiveEvent}s.
  *
  * @author fren_gor
  */
-public abstract class PacketEvent implements Cancellable {
-
-    private boolean cancelled = false;
-
-    /**
-     * Gets whether the packet is cancelled.
-     *
-     * @return Whether the packer is cancelled.
-     */
-    @Override
-    public boolean isCancelled() {
-        return cancelled;
-    }
+@FunctionalInterface
+public interface PacketReceiveListener extends PacketListener {
 
     /**
-     * Sets the packet cancelled status.
-     *
-     * @param cancelled Whether to cancel the packet or not.
+     * {@inheritDoc}
      */
     @Override
-    public void setCancelled(boolean cancelled) {
-        this.cancelled = cancelled;
-    }
+    void onReceive(PacketReceiveEvent event);
 }
