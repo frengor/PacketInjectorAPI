@@ -1,9 +1,14 @@
 # Packet Injector API
-[![](https://jitpack.io/v/com.frengor/PacketInjectorAPI.svg)](https://jitpack.io/#com.frengor/PacketInjectorAPI)
+[![Build Status](https://jenkins.frengor.com/job/PacketInjectorAPI/badge/icon)](https://jenkins.frengor.com/job/PacketInjectorAPI/)
+[![License](https://img.shields.io/badge/license-MIT-orange)](https://github.com/frengor/PacketInjectorAPI/blob/main/LICENSE)
 
-API for managing packets
+Library for working with minecraft packets
 
-Maven:
+**Download Page:** <https://www.spigotmc.org/resources/57931/>  
+**Javadoc:** <https://frengor.com/javadocs/PacketInjectorAPI/build-server/>  
+**Jenkins:** <https://jenkins.frengor.com/job/PacketInjectorAPI/>
+
+**Get it with maven:**
 ```xml
 <repositories>
     <repository>
@@ -21,4 +26,6 @@ Maven:
 </dependency>
 ```
 
-Spigot: https://www.spigotmc.org/resources/packetinjectorapi-send-packet-to-client-and-to-server.57931/
+## Credits
+
+PacketInjectorAPI uses an [updated version of TinyProtocol](https://github.com/frengor/TinyProtocol) to inject packets.
