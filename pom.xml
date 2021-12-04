@@ -5,7 +5,7 @@
 
     <groupId>com.frengor</groupId>
     <artifactId>packetinjectorapi</artifactId>
-    <version>3.0.0</version>
+    <version>3.0.1</version>
     <packaging>jar</packaging>
 
     <name>PacketInjectorAPI</name>
@@ -113,7 +113,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.8.1</version>
+            <version>5.8.2</version>
             <scope>test</scope>
         </dependency>
 
@@ -121,7 +121,7 @@
         <dependency>
             <groupId>com.github.seeseemelk</groupId>
             <artifactId>MockBukkit-v1.17</artifactId>
-            <version>1.10.3</version>
+            <version>1.10.4</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
