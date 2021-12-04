@@ -124,7 +124,7 @@ class Commands implements CommandExecutor, TabCompleter {
 
     private boolean isToSkip(String name) {
         synchronized (LOCK) {
-            return !allow.contains(name) && deny.contains(name);
+            return allow.isEmpty() ? deny.contains(name) : !allow.contains(name) || deny.contains(name);
         }
     }
 
