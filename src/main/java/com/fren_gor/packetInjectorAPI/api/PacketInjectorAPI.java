@@ -40,8 +40,10 @@ import java.util.Objects;
 public final class PacketInjectorAPI {
 
     private final Plugin owner;
-    private final PacketHandler handler;
+    //private final PacketHandler handler;
     private final PacketEventManager eventManager;
+
+    private final NewPackethandler newpacketHandler;
 
     /**
      * Creates a new {@code PacketInjectorAPI}.
@@ -54,7 +56,9 @@ public final class PacketInjectorAPI {
             throw new IllegalArgumentException("Plugin is not enabled.");
 
         this.eventManager = new PacketEventManager();
-        this.handler = new PacketHandler(plugin, eventManager);
+        //this.handler = new PacketHandler(plugin, eventManager);
+
+        this.newpacketHandler = new NewPackethandler(plugin, eventManager);
 
         Bukkit.getPluginManager().registerEvents(new Listener() {
 
@@ -96,7 +100,7 @@ public final class PacketInjectorAPI {
         Objects.requireNonNull(player, "Player is null.");
         Objects.requireNonNull(packet, "Packet is null.");
 
-        handler.sendPacket(player, packet);
+        //handler.sendPacket(player, packet);
     }
 
     /**
@@ -109,6 +113,6 @@ public final class PacketInjectorAPI {
         Objects.requireNonNull(player, "Player is null.");
         Objects.requireNonNull(packet, "Packet is null.");
 
-        handler.receivePacket(player, packet);
+        //handler.receivePacket(player, packet);
     }
 }
