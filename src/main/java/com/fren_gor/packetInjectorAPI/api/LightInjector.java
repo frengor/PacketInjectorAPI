@@ -55,6 +55,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
 /**
@@ -74,19 +75,27 @@ public abstract class LightInjector {
     // since it is called only from the constructor, which is assured to run on the main thread
     private static int ID = 0;
 
+    /**
+     * The plugin which registered this LightInjector.
+     */
     protected final Plugin plugin;
     private final String identifier; // The identifier used to register the ChannelHandler into the channel pipeline
 
+    // Also used as synchronization lock for injection/uninjection, see close() and injectPlayer(NetworkManager, UUID)
+    private final AtomicBoolean closed = new AtomicBoolean(false);
+
     // The list of NetworkManager
     private final List<NetworkManager> networkManagers;
+
+    private final EventListener listener = new EventListener();
 
     // A cache of PacketHandlers to allow EventListener#onPlayerLoginEvent to be faster. During AsyncPlayerPreLoginEvent,
     // the injected PacketHandler is inserted here so that it is faster to set the player during PlayerLoginEvent processing
     private final Map<UUID, PacketHandler> handlerCache = Collections.synchronizedMap(new HashMap<>());
 
     /**
-     * Initializes the {@code LightInjector} and start to listen to packets.
-     * <p>Note that it is possible to creates more than one instance per plugin.
+     * Initializes the LightInjector and starts to listen to packets.
+     * <p>Note that it is possible to create more than one instance per plugin.
      *
      * @param plugin The {@link Plugin} which is instantiating this injector.
      * @throws NullPointerException When the provided {@code plugin} is {@code null}.
@@ -109,12 +118,18 @@ public abstract class LightInjector {
 
         this.networkManagers = conn.e();
 
-        Bukkit.getPluginManager().registerEvents(new EventListener(), plugin);
+        Bukkit.getPluginManager().registerEvents(listener, plugin);
 
         // Inject already online players
         for (Player p : Bukkit.getOnlinePlayers()) {
             try {
-                injectPlayer(p).player = p;
+                @Nullable PacketHandler handler = injectPlayer(p);
+                if (handler != null) {
+                    handler.player = p;
+                } else if (isClosed()) {
+                    // If handler is null then probably (inside onPacketReceive/SendAsync) the injector has been closed
+                    return;
+                }
             } catch (Exception exception) {
                 plugin.getLogger().log(Level.SEVERE, "An error occurred while injecting a player:", exception);
             }
@@ -222,28 +237,70 @@ public abstract class LightInjector {
         return "light-injector-" + plugin.getName();
     }
 
-    private PacketHandler injectPlayer(Player player) throws RuntimeException {
+    /**
+     * Closes this LightInjector and uninject every injected player.
+     */
+    public void close() {
+        if (closed.getAndSet(true)) {
+            return;
+        }
+
+        listener.unregister();
+
+        // We need to unregister the channel handlers. This double synchronization shouldn't cause
+        // deadlock, since in the rest of the code these locks are never requested simultaneously
+        synchronized (closed) { // Lock out injections
+            synchronized (networkManagers) { // Lock out Minecraft
+                for (NetworkManager manager : networkManagers) {
+                    try {
+                        getChannel(manager).pipeline().remove(identifier);
+                    } catch (Exception exception) {
+                        plugin.getLogger().log(Level.SEVERE, "An error occurred while uninjecting a player:", exception);
+                    }
+                }
+            }
+        }
+
+        handlerCache.clear();
+    }
+
+    /**
+     * Returns whether this LightInjector has been closed.
+     *
+     * @return Whether this LightInjector has been closed.
+     * @see #close()
+     */
+    public boolean isClosed() {
+        return closed.get();
+    }
+
+    private @Nullable PacketHandler injectPlayer(Player player) throws RuntimeException {
         return injectPlayer(getNetworkManager(player), player.getUniqueId());
     }
 
-    private PacketHandler injectPlayer(NetworkManager manager, UUID uuid) throws RuntimeException {
+    private @Nullable PacketHandler injectPlayer(NetworkManager manager, UUID uuid) throws RuntimeException {
         PacketHandler handler = new PacketHandler(uuid);
         ChannelPipeline pipeline = getChannel(manager).pipeline();
-        try {
-            pipeline.addBefore("packet_handler", identifier, handler);
-        } catch (IllegalArgumentException e) {
-            ChannelHandler oldHandler = pipeline.get(identifier);
-            if (oldHandler instanceof PacketHandler) {
-                // Already injected, just return the handler
-                return (PacketHandler) oldHandler;
+
+        synchronized (closed) { // This makes sure the following won't run during uninjection
+            if (isClosed()) return null; // Don't inject if uninjection has already occurred in close()
+
+            try {
+                pipeline.addBefore("packet_handler", identifier, handler);
+            } catch (IllegalArgumentException e) {
+                ChannelHandler oldHandler = pipeline.get(identifier);
+                if (oldHandler instanceof PacketHandler) {
+                    // Already injected, just return the handler
+                    return (PacketHandler) oldHandler;
+                }
+                throw new RuntimeException("Identifier \"" + identifier + "\" is not unique, cannot inject.");
             }
-            throw new RuntimeException("Identifier \"" + identifier + "\" is not unique, cannot inject.");
         }
         return handler;
     }
 
-    private NetworkManager getNetworkManager(final InetAddress addr) {
-        synchronized (networkManagers) {
+    private @Nullable NetworkManager getNetworkManager(final InetAddress addr) {
+        synchronized (networkManagers) { // Lock out Minecraft
             // Address search
             // Iterating backwards is better since NetworkManagers are added at the end of the list
             ListIterator<NetworkManager> iterator = networkManagers.listIterator(networkManagers.size());
@@ -293,7 +350,11 @@ public abstract class LightInjector {
 
         @EventHandler(priority = EventPriority.LOWEST)
         private void onAsyncPlayerPreLoginEvent(AsyncPlayerPreLoginEvent event) {
-            NetworkManager manager = getNetworkManager(event.getAddress());
+            if (isClosed()) {
+                return;
+            }
+
+            @Nullable NetworkManager manager = getNetworkManager(event.getAddress());
             if (manager == null) {
                 plugin.getLogger().warning("Cannot get NetworkManager, cannot inject.");
                 return;
@@ -301,15 +362,26 @@ public abstract class LightInjector {
 
             UUID uuid = event.getUniqueId();
 
-            handlerCache.remove(uuid); // Remove already-present UUID (if there's any)
-            PacketHandler handler = injectPlayer(manager, uuid);
-            handlerCache.put(uuid, handler); // Cache our handler for later
+            @Nullable PacketHandler handler;
+            try {
+                handler = injectPlayer(manager, uuid);
+            } catch (RuntimeException exception) {
+                handlerCache.remove(uuid); // Remove already-present UUID (if there's any).
+                throw exception;
+            }
+
+            if (handler != null)
+                handlerCache.put(uuid, handler); // Cache our handler for later
         }
 
         @EventHandler(priority = EventPriority.LOWEST)
         private void onPlayerLoginEvent(PlayerLoginEvent event) {
+            if (isClosed()) {
+                return;
+            }
+
             // Get the handler from cache
-            PacketHandler packetHandler = handlerCache.remove(event.getPlayer().getUniqueId());
+            @Nullable PacketHandler packetHandler = handlerCache.remove(event.getPlayer().getUniqueId());
             if (packetHandler == null) {
                 // Don't print error message, it should have already been printed in onAsyncPlayerPreLoginEvent
                 return;
@@ -321,10 +393,14 @@ public abstract class LightInjector {
 
         @EventHandler(priority = EventPriority.LOWEST)
         private void onPlayerJoinEvent(PlayerJoinEvent event) {
-            // At worst, if player haven't successfully been injected in the previous steps, it's injected now
+            if (isClosed()) {
+                return;
+            }
+
+            // At worst, if player haven't successfully been injected in the previous steps, it's injected now.
             // At this point the Player's PlayerConnection field should have been initialized to a non-null value
             NetworkManager manager = getNetworkManager(event.getPlayer());
-            ChannelHandler channelHandler = getChannel(manager).pipeline().get(identifier);
+            @Nullable ChannelHandler channelHandler = getChannel(manager).pipeline().get(identifier);
             if (channelHandler != null) {
                 // A channel handler named IDENTIFIER has been found
                 if (channelHandler instanceof PacketHandler) {
@@ -336,24 +412,23 @@ public abstract class LightInjector {
             }
 
             plugin.getLogger().info("Late injection for player " + event.getPlayer().getName());
-            injectPlayer(manager, event.getPlayer().getUniqueId()).player = event.getPlayer();
+            @Nullable PacketHandler handler = injectPlayer(manager, event.getPlayer().getUniqueId());
+            if (handler != null)
+                handler.player = event.getPlayer(); // handler.player is volatile, it doesn't need to be synchronized
         }
 
         @EventHandler(priority = EventPriority.MONITOR)
         private void onPluginDisableEvent(PluginDisableEvent event) {
             if (plugin.equals(event.getPlugin())) {
-                // We need to unregister the channel handlers
-                synchronized (networkManagers) {
-                    for (NetworkManager manager : networkManagers) {
-                        try {
-                            getChannel(manager).pipeline().remove(identifier);
-                        } catch (Exception exception) {
-                            plugin.getLogger().log(Level.SEVERE, "An error occurred while uninjecting a player:", exception);
-                        }
-                    }
-                }
-                handlerCache.clear();
+                close();
             }
+        }
+
+        private void unregister() {
+            AsyncPlayerPreLoginEvent.getHandlerList().unregister(this);
+            PlayerLoginEvent.getHandlerList().unregister(this);
+            PlayerJoinEvent.getHandlerList().unregister(this);
+            PluginDisableEvent.getHandlerList().unregister(this);
         }
 
         private EventListener() {
@@ -380,7 +455,7 @@ public abstract class LightInjector {
 
         @Override
         public void write(ChannelHandlerContext ctx, Object packet, ChannelPromise promise) throws Exception {
-            Object newPacket;
+            @Nullable Object newPacket;
             try {
                 newPacket = onPacketSendAsync(player, ctx.channel(), packet);
             } catch (OutOfMemoryError error) {
@@ -398,7 +473,7 @@ public abstract class LightInjector {
 
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object packet) throws Exception {
-            Object newPacket;
+            @Nullable Object newPacket;
             try {
                 newPacket = onPacketReceiveAsync(player, ctx.channel(), packet);
             } catch (OutOfMemoryError error) {
