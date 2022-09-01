@@ -63,7 +63,7 @@ import java.util.logging.Level;
  * Can listen to every packet since {@link AsyncPlayerPreLoginEvent} fires (approximately since the set compression
  * packet, see <a href="https://wiki.vg/Protocol_FAQ#What.27s_the_normal_login_sequence_for_a_client.3F">What's the normal login sequence for a client?</a>).
  * <p>
- * Do not (currently) listen to packets exchanged during status pings (i.e. server list pings).
+ * Do not listen to packets exchanged during status pings (i.e. server list pings).
  * Use the {@link ServerListPingEvent} to change the ping information.
  *
  * @author fren_gor
@@ -88,13 +88,13 @@ public abstract class LightInjector {
     private final Map<UUID, PacketHandler> handlerCache = Collections.synchronizedMap(new HashMap<>());
 
     /**
-     * Initializes the LightInjector and starts to listen to packets.
-     * <p>Note that it is possible to create more than one instance per plugin.
+     * Initializes the injector and starts to listen to packets.
+     * <p>
+     * Note that it is possible to create more than one instance per plugin.
      *
      * @param plugin The {@link Plugin} which is instantiating this injector.
      * @throws NullPointerException When the provided {@code plugin} is {@code null}.
      * @throws IllegalStateException When <b>not</b> called from the main thread.
-     * @throws IllegalArgumentException When the return value of {@link #getIdentifier()} (when called by the constructor) is {@code null}.
      */
     public LightInjector(@NotNull Plugin plugin) {
         if (!Bukkit.isPrimaryThread()) {
@@ -102,7 +102,7 @@ public abstract class LightInjector {
         }
 
         this.plugin = Objects.requireNonNull(plugin, "Plugin is null.");
-        this.identifier = getIdentifier() + '-' + ID++;
+        this.identifier = Objects.requireNonNull(getIdentifier(), "getIdentifier() returned a null value.") + '-' + ID++;
 
         final ServerConnection conn = ((CraftServer) Bukkit.getServer()).getServer().ad();
 
@@ -130,7 +130,7 @@ public abstract class LightInjector {
      * @param sender The {@link Player} which sent the packet. May be {@code null} for early packets.
      * @param channel The {@link Channel} of the player's connection.
      * @param packet The packet received from player.
-     * @return The packet to receive instead,or {@code null} if the packet should be cancelled.
+     * @return The packet to receive instead, or {@code null} if the packet should be cancelled.
      */
     protected abstract @Nullable Object onPacketReceiveAsync(@Nullable Player sender, @NotNull Channel channel, @NotNull Object packet);
 
@@ -139,16 +139,15 @@ public abstract class LightInjector {
      *
      * @param receiver The {@link Player} which will receive the packet. May be {@code null} for early packets.
      * @param channel The {@link Channel} of the player's connection.
-     * @param packet The packet to send to player.
+     * @param packet The packet to send to the player.
      * @return The packet to send instead, or {@code null} if the packet should be cancelled.
      */
     protected abstract @Nullable Object onPacketSendAsync(@Nullable Player receiver, @NotNull Channel channel, @NotNull Object packet);
 
     /**
      * Sends a packet to a player. Since the packet will be sent without any special treatment, this will invoke
-     * {@link #onPacketSendAsync(Player, Channel, Object)} when the packet will be intercepted by LightInjector (any
-     * other packet injectors present on the sever (e.g. ProtocolLib, packetevents, etc.) will intercept and possibly
-     * cancel the packet as well).
+     * {@link #onPacketSendAsync(Player, Channel, Object) onPacketSendAsync} when the packet will be intercepted by the
+     * injector (any other packet injectors present on the sever will intercept and possibly cancel the packet as well).
      *
      * @param receiver The {@link Player} to which the packet will be sent.
      * @param packet The packet to send.
@@ -161,10 +160,9 @@ public abstract class LightInjector {
     }
 
     /**
-     * Sends a packet over a {@link Channel}. Since the packet will be sent without any special treatment, this will
-     * invoke {@link #onPacketSendAsync(Player, Channel, Object)} when the packet will be intercepted by LightInjector
-     * (any other packet injectors present on the sever (e.g. ProtocolLib, packetevents, etc.) will intercept and
-     * possibly cancel the packet as well).
+     * Sends a packet over a {@link Channel}. Since the packet will be sent without any special treatment, this will invoke
+     * {@link #onPacketSendAsync(Player, Channel, Object) onPacketSendAsync} when the packet will be intercepted by the
+     * injector (any other packet injectors present on the sever will intercept and possibly cancel the packet as well).
      *
      * @param channel The {@link Channel} on which the packet will be sent.
      * @param packet The packet to send.
@@ -178,9 +176,9 @@ public abstract class LightInjector {
 
     /**
      * Acts like if the server has received a packet from a player. Since this process is done without any special
-     * treatment of the packet, this will invoke {@link #onPacketReceiveAsync(Player, Channel, Object)} when the packet
-     * will be intercepted by LightInjector (any other packet injectors present on the sever (e.g. ProtocolLib,
-     * packetevents, etc.) will intercept and possibly cancel the packet as well).
+     * treatment of the packet, this will invoke {@link #onPacketReceiveAsync(Player, Channel, Object) onPacketReceiveAsync}
+     * when the packet will be intercepted by the injector (any other packet injectors present on the sever will intercept
+     * and possibly cancel the packet as well).
      *
      * @param sender The {@link Player} from which the packet will be received.
      * @param packet The packet to receive.
@@ -194,9 +192,9 @@ public abstract class LightInjector {
 
     /**
      * Acts like if the server has received a packet over a {@link Channel}. Since this process is done without any
-     * special treatment of the packet, this will invoke {@link #onPacketReceiveAsync(Player, Channel, Object)} when the
-     * packet will be intercepted by LightInjector (any other packet injectors present on the sever (e.g. ProtocolLib,
-     * packetevents, etc.) will intercept and possibly cancel the packet as well).
+     * special treatment of the packet, this will invoke {@link #onPacketReceiveAsync(Player, Channel, Object) onPacketReceiveAsync}
+     * when the packet will be intercepted by the injector (any other packet injectors present on the sever will intercept
+     * and possibly cancel the packet as well).
      *
      * @param channel The {@link Channel} on which the packet will be received.
      * @param packet The packet to receive.
@@ -211,22 +209,28 @@ public abstract class LightInjector {
     }
 
     /**
-     * Gets the unique identifier of this LightInjector. A slightly modified version of the returned identifier will be used
-     * to register the {@link ChannelHandler} during injection.
+     * Gets the unique non-null identifier of this injector. A slightly modified version of the returned identifier will
+     * be used to register the {@link ChannelHandler} during injection.
      * <p>
-     * This method is only called once per instance and should always return the same {@link String} when two
-     * instances are constructed by the same {@link Plugin}.
+     * This method is only called once per instance and should always return the same {@link String} when two instances
+     * are constructed by the same {@link Plugin}.
      * <p>
-     * The default implementation returns {@code "light-injector-" + plugin.getName()}.
+     * The default implementation returns {@code "light-injector-" + getPlugin().getName()}.
      *
-     * @return The unique non-null identifier of this LightInjector.
+     * @return The unique non-null identifier of this injector.
      */
     protected @NotNull String getIdentifier() {
         return "light-injector-" + plugin.getName();
     }
 
     /**
-     * Closes this LightInjector and uninject every injected player.
+     * Closes the injector and uninject every injected player. This method is automatically called when the plugin which
+     * instantiated this injector disables, so it is usually unnecessary to invoke it directly.
+     * <p>
+     * The uninjection may require some time, so {@link #onPacketReceiveAsync(Player, Channel, Object) onPacketReceiveAsync}
+     * and {@link #onPacketSendAsync(Player, Channel, Object) onPacketSendAsync} might still be called after this method returns.
+     * <p>
+     * If this injector is already closed then invoking of this method has no effect.
      */
     public final void close() {
         if (closed.getAndSet(true)) {
@@ -252,9 +256,9 @@ public abstract class LightInjector {
     }
 
     /**
-     * Returns whether this LightInjector has been closed.
+     * Returns whether this injector has been closed.
      *
-     * @return Whether this LightInjector has been closed.
+     * @return Whether this injector has been closed.
      * @see #close()
      */
     public final boolean isClosed() {
@@ -292,7 +296,7 @@ public abstract class LightInjector {
     private @Nullable NetworkManager getNetworkManager(final InetAddress addr) {
         synchronized (networkManagers) { // Lock out Minecraft
             // Address search
-            // Iterating backwards is better since NetworkManagers are added at the end of the list
+            // Iterating backwards is better since new NetworkManagers are added at the end of the list
             ListIterator<NetworkManager> iterator = networkManagers.listIterator(networkManagers.size());
             while (iterator.hasPrevious()) {
                 NetworkManager manager = iterator.previous();
@@ -304,7 +308,7 @@ public abstract class LightInjector {
 
             // No NetworkManager has been found with address search
 
-            // Try to get the first NetworkManager without a ChannelHandler named IDENTIFIER. If (at least) two NetworkManager(s)
+            // Try to get the first NetworkManager without a ChannelHandler named identifier. If (at least) two NetworkManager(s)
             // are found in such state, then return null since we cannot be sure of which is the correct NetworkManager.
             NetworkManager savedManager = null;
             iterator = networkManagers.listIterator(networkManagers.size());
@@ -365,7 +369,6 @@ public abstract class LightInjector {
             // Get the handler from cache
             @Nullable PacketHandler packetHandler = handlerCache.remove(event.getPlayer().getUniqueId());
             if (packetHandler == null) {
-                // Don't print error message, it should have already been printed in onAsyncPlayerPreLoginEvent
                 return;
             }
 
@@ -385,7 +388,7 @@ public abstract class LightInjector {
             NetworkManager manager = getNetworkManager(player);
             @Nullable ChannelHandler channelHandler = getChannel(manager).pipeline().get(identifier);
             if (channelHandler != null) {
-                // A channel handler named IDENTIFIER has been found
+                // A channel handler named identifier has been found
                 if (channelHandler instanceof PacketHandler) {
                     // The player have already been injected, only set the player as a backup in the eventuality
                     // that onPlayerLoginEvent failed to set it previously
