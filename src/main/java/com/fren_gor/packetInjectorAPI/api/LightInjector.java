@@ -74,10 +74,7 @@ public abstract class LightInjector {
     // since it is called only from the constructor, which is assured to run on the main thread
     private static int ID = 0;
 
-    /**
-     * The plugin which registered this LightInjector.
-     */
-    protected final Plugin plugin;
+    private final Plugin plugin;
     private final String identifier; // The identifier used to register the ChannelHandler into the channel pipeline
 
     // The list of NetworkManagers
@@ -262,6 +259,16 @@ public abstract class LightInjector {
      */
     public final boolean isClosed() {
         return closed.get();
+    }
+
+    /**
+     * Return the plugin which instantiated this injector.
+     *
+     * @return The plugin which instantiated this injector.
+     * @see #LightInjector(Plugin)
+     */
+    public final @NotNull Plugin getPlugin() {
+        return plugin;
     }
 
     private PacketHandler injectPlayer(Player player) throws RuntimeException {

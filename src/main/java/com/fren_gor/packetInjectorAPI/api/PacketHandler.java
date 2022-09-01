@@ -57,6 +57,6 @@ final class PacketHandler extends LightInjector {
 
     @Override
     protected @NotNull String getIdentifier() {
-        return plugin.getName();
+        return getPlugin().getName();
     }
 }
