@@ -28,6 +28,7 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import net.minecraft.network.NetworkManager;
+import net.minecraft.network.protocol.login.PacketLoginOutSuccess;
 import net.minecraft.server.network.ServerConnection;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_19_R1.CraftServer;
@@ -45,15 +46,15 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.net.InetAddress;
-import java.net.SocketAddress;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Objects;
+import java.util.RandomAccess;
+import java.util.Set;
 import java.util.UUID;
+import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
@@ -83,9 +84,10 @@ public abstract class LightInjector {
     private final EventListener listener = new EventListener();
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
-    // A cache of PacketHandlers to allow EventListener#onPlayerLoginEvent to be faster. During AsyncPlayerPreLoginEvent,
-    // the injected PacketHandler is inserted here so that it is faster to set the player during PlayerLoginEvent processing
-    private final Map<UUID, PacketHandler> handlerCache = Collections.synchronizedMap(new HashMap<>());
+    // Used to allow PacketHandlers to set the PacketHandler.player field
+    private final Map<UUID, Player> playerCache = Collections.synchronizedMap(new HashMap<>());
+    // Set of already injected channels, used to speed up channel injection during AsyncPlayerPreLoginEvent
+    private final Set<Channel> injectedChannels = Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
 
     /**
      * Initializes the injector and starts to listen to packets.
@@ -117,7 +119,7 @@ public abstract class LightInjector {
         // Inject already online players
         for (Player p : Bukkit.getOnlinePlayers()) {
             try {
-                injectPlayer(p).player = p;
+                injectPlayer(p);
             } catch (Exception exception) {
                 plugin.getLogger().log(Level.SEVERE, "An error occurred while injecting a player:", exception);
             }
@@ -252,7 +254,8 @@ public abstract class LightInjector {
             }
         }
 
-        handlerCache.clear();
+        playerCache.clear();
+        injectedChannels.clear();
     }
 
     /**
@@ -275,56 +278,27 @@ public abstract class LightInjector {
         return plugin;
     }
 
-    private PacketHandler injectPlayer(Player player) throws RuntimeException {
-        return injectPlayer(getNetworkManager(player), player.getUniqueId());
+    private void injectPlayer(Player player) {
+        injectChannel(getChannel(player)).player = player;
     }
 
-    private PacketHandler injectPlayer(NetworkManager manager, UUID uuid) {
-        PacketHandler handler = new PacketHandler(uuid);
-        Channel channel = getChannel(manager);
+    private PacketHandler injectChannel(Channel channel) {
+        PacketHandler handler = new PacketHandler();
 
         // Run on event loop to avoid a possible data race with uninjection in close()
         channel.eventLoop().submit(() -> {
             if (isClosed()) return; // Don't inject if uninjection has already occurred in close()
 
-            channel.pipeline().addBefore("packet_handler", identifier, handler);
+            if (injectedChannels.add(channel)) { // Only inject if not already injected
+                try {
+                    channel.pipeline().addBefore("packet_handler", identifier, handler);
+                } catch (IllegalArgumentException ignored) {
+                    plugin.getLogger().severe("Couldn't inject a player, an handler with identifier '" + identifier + "' is already present");
+                }
+            }
         });
 
         return handler;
-    }
-
-    private @Nullable NetworkManager getNetworkManager(final InetAddress addr) {
-        synchronized (networkManagers) { // Lock out Minecraft
-            // Address search
-            // Iterating backwards is better since new NetworkManagers are added at the end of the list
-            ListIterator<NetworkManager> iterator = networkManagers.listIterator(networkManagers.size());
-            while (iterator.hasPrevious()) {
-                NetworkManager manager = iterator.previous();
-                SocketAddress o = manager.n;
-                if (o instanceof java.net.InetSocketAddress && addr.equals(((java.net.InetSocketAddress) o).getAddress())) {
-                    return manager;
-                }
-            }
-
-            // No NetworkManager has been found with address search
-
-            // Try to get the first NetworkManager without a ChannelHandler named identifier. If (at least) two NetworkManager(s)
-            // are found in such state, then return null since we cannot be sure of which is the correct NetworkManager.
-            NetworkManager savedManager = null;
-            iterator = networkManagers.listIterator(networkManagers.size());
-            while (iterator.hasPrevious()) {
-                NetworkManager manager = iterator.previous();
-                ChannelHandler handler = getChannel(manager).pipeline().get(identifier);
-                if (handler == null) {
-                    if (savedManager == null) {
-                        savedManager = manager;
-                    } else {
-                        return null;
-                    }
-                }
-            }
-            return savedManager;
-        }
     }
 
     private NetworkManager getNetworkManager(Player player) {
@@ -348,16 +322,32 @@ public abstract class LightInjector {
                 return;
             }
 
-            @Nullable NetworkManager manager = getNetworkManager(event.getAddress());
-            if (manager == null) {
-                plugin.getLogger().warning("Cannot get NetworkManager, cannot inject.");
-                return;
+            // Inject all not injected managers.
+            // This O(n) operation is used to avoid registering a permanent object inside server's ServerSocketChannel
+            synchronized (networkManagers) { // Lock out Minecraft
+                if (networkManagers instanceof RandomAccess) {
+                    // Faster for loop
+                    // Iterating backwards is better since new NetworkManagers should be added at the end of the list
+                    for (int i = networkManagers.size() - 1; i >= 0; i--) {
+                        NetworkManager manager = networkManagers.get(i);
+                        injectNetworkManager(manager);
+                    }
+                } else {
+                    // Using standard foreach to avoid any potential performance issues
+                    // (networkManagers should be an ArrayList, but we cannot be sure about that due to forks)
+                    for (NetworkManager manager : networkManagers) {
+                        injectNetworkManager(manager);
+                    }
+                }
             }
+        }
 
-            UUID uuid = event.getUniqueId();
-
-            PacketHandler handler = injectPlayer(manager, uuid);
-            handlerCache.put(uuid, handler); // Cache our handler for later
+        private void injectNetworkManager(NetworkManager manager) {
+            Channel channel = getChannel(manager);
+            // This check avoids useless injections
+            if (!injectedChannels.contains(channel)) {
+                injectChannel(channel);
+            }
         }
 
         @EventHandler(priority = EventPriority.LOWEST)
@@ -366,14 +356,8 @@ public abstract class LightInjector {
                 return;
             }
 
-            // Get the handler from cache
-            @Nullable PacketHandler packetHandler = handlerCache.remove(event.getPlayer().getUniqueId());
-            if (packetHandler == null) {
-                return;
-            }
-
-            // Set player
-            packetHandler.player = event.getPlayer();
+            // Save Player object for later
+            playerCache.put(event.getPlayer().getUniqueId(), event.getPlayer());
         }
 
         @EventHandler(priority = EventPriority.LOWEST)
@@ -383,22 +367,26 @@ public abstract class LightInjector {
             }
             Player player = event.getPlayer();
 
-            // At worst, if player haven't successfully been injected in the previous steps, it's injected now.
+            // At worst, if player hasn't successfully been injected in the previous steps, it's injected now.
             // At this point the Player's PlayerConnection field should have been initialized to a non-null value
             NetworkManager manager = getNetworkManager(player);
-            @Nullable ChannelHandler channelHandler = getChannel(manager).pipeline().get(identifier);
+            Channel channel = getChannel(manager);
+            @Nullable ChannelHandler channelHandler = channel.pipeline().get(identifier);
             if (channelHandler != null) {
                 // A channel handler named identifier has been found
                 if (channelHandler instanceof PacketHandler) {
                     // The player have already been injected, only set the player as a backup in the eventuality
-                    // that onPlayerLoginEvent failed to set it previously
+                    // that anything else failed to set it previously.
                     ((PacketHandler) channelHandler).player = player;
+
+                    // Clear the cache to avoid any possible (but very unlikely to happen) memory leak
+                    playerCache.remove(player.getUniqueId());
                 }
                 return; // Don't inject again
             }
 
             plugin.getLogger().info("Late injection for player " + player.getName());
-            injectPlayer(manager, player.getUniqueId()).player = player;
+            injectChannel(channel).player = player;
         }
 
         @EventHandler(priority = EventPriority.MONITOR)
@@ -414,31 +402,33 @@ public abstract class LightInjector {
             PlayerJoinEvent.getHandlerList().unregister(this);
             PluginDisableEvent.getHandlerList().unregister(this);
         }
-
-        private EventListener() {
-            // Private constructor
-        }
     }
 
     private final class PacketHandler extends ChannelDuplexHandler {
         private volatile Player player;
-        private final UUID uuid;
-
-        private PacketHandler(UUID uuid) {
-            this.uuid = uuid;
-        }
 
         @Override
         public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
             // Called during player disconnection
-            if (player == null) // If player hasn't been set, then the map needs to be cleaned up
-                handlerCache.remove(uuid);
+
+            // Clean data structures
+            injectedChannels.remove(ctx.channel());
 
             super.channelUnregistered(ctx);
         }
 
         @Override
         public void write(ChannelHandlerContext ctx, Object packet, ChannelPromise promise) throws Exception {
+            if (player == null && packet instanceof PacketLoginOutSuccess) {
+                // Player object should be in cache. If it's not, then it'll be PlayerJoinEvent to set the player
+                @Nullable Player player = playerCache.remove(((PacketLoginOutSuccess) packet).b().getId());
+
+                // Set the player only if it was contained into the cache
+                if (player != null) {
+                    this.player = player;
+                }
+            }
+
             @Nullable Object newPacket;
             try {
                 newPacket = onPacketSendAsync(player, ctx.channel(), packet);
