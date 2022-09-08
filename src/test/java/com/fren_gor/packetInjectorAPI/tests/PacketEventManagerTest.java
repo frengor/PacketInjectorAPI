@@ -23,7 +23,7 @@
 package com.fren_gor.packetInjectorAPI.tests;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
-import com.comphenix.tinyprotocol.TinyProtocol;
+import com.fren_gor.lightInjector.LightInjector;
 import com.fren_gor.packetInjectorAPI.api.PacketEventManager;
 import com.fren_gor.packetInjectorAPI.api.PacketInjectorAPI;
 import com.fren_gor.packetInjectorAPI.api.listeners.PacketListener;
@@ -61,14 +61,14 @@ public class PacketEventManagerTest {
 
     private PacketInjectorAPI api;
     private Plugin pl;
-    private TinyProtocol packetHandler;
+    private LightInjector packetHandler;
     private final AbstractListener[] listeners = new AbstractListener[3];
     private Map<Plugin, Set<Object>> MAP_LISTENERS;
     private Set<Object> SEND_LISTENERS, RECEIVE_LISTENERS;
 
     @BeforeAll
     static void init() throws Exception {
-        Class.forName("com.comphenix.tinyprotocol.TinyProtocol");
+        Class.forName("com.fren_gor.lightInjector.LightInjector");
 
         assertTrue(initialized, "Cannot load TinyProtocol dummy class for tests.");
 
@@ -83,7 +83,7 @@ public class PacketEventManagerTest {
         pl = MockBukkit.createMockPlugin();
         api = new PacketInjectorAPI(pl);
 
-        packetHandler = (TinyProtocol) setAccessible(PacketInjectorAPI.class.getDeclaredField("handler")).get(api);
+        packetHandler = (LightInjector) setAccessible(PacketInjectorAPI.class.getDeclaredField("handler")).get(api);
 
         MAP_LISTENERS = (Map<Plugin, Set<Object>>) setAccessible(PacketEventManager.class.getDeclaredField("MAP_LISTENERS")).get(api.getEventManager());
         SEND_LISTENERS = (Set<Object>) setAccessible(PacketEventManager.class.getDeclaredField("SEND_LISTENERS")).get(api.getEventManager());
@@ -121,8 +121,8 @@ public class PacketEventManagerTest {
         for (int i = 0; i < listeners.length; i++)
             internalTestRegister(i);
 
-        packetHandler.onPacketOutAsync(null, new SimpleChannel(), new DummyPacket());
-        packetHandler.onPacketInAsync(null, new SimpleChannel(), new DummyPacket());
+        packetHandler.onPacketSendAsync(null, new SimpleChannel(), new DummyPacket());
+        packetHandler.onPacketReceiveAsync(null, new SimpleChannel(), new DummyPacket());
 
         for (int i = 0; i < listeners.length; i++)
             internalCallTest(i);

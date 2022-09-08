@@ -22,6 +22,7 @@
 
 package com.fren_gor.packetInjectorAPI.api;
 
+import com.fren_gor.lightInjector.LightInjector;
 import com.fren_gor.packetInjectorAPI.api.events.PacketReceiveEvent;
 import com.fren_gor.packetInjectorAPI.api.events.PacketSendEvent;
 import io.netty.channel.Channel;
