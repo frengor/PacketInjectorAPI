@@ -21,11 +21,11 @@ Library for working with minecraft packets
 <dependency>
     <groupId>com.frengor</groupId>
     <artifactId>packetinjectorapi</artifactId>
-    <version>3.0.2</version>
+    <version>3.1.0</version>
     <scope>provided</scope>
 </dependency>
 ```
 
 ## Credits
 
-PacketInjectorAPI uses an [updated version of TinyProtocol](https://github.com/frengor/TinyProtocol) to inject packets.
+PacketInjectorAPI uses [LightInjector](https://github.com/frengor/LightInjector) to inject packets.
