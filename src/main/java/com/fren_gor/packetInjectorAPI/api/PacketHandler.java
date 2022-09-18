@@ -22,19 +22,16 @@
 
 package com.fren_gor.packetInjectorAPI.api;
 
-import com.comphenix.tinyprotocol.TinyProtocol;
+import com.fren_gor.lightInjector.LightInjector;
 import com.fren_gor.packetInjectorAPI.api.events.PacketReceiveEvent;
 import com.fren_gor.packetInjectorAPI.api.events.PacketSendEvent;
 import io.netty.channel.Channel;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-final class PacketHandler extends TinyProtocol {
-
-    private static final AtomicInteger COUNTER = new AtomicInteger();
+final class PacketHandler extends LightInjector {
 
     private final PacketEventManager manager;
 
@@ -44,7 +41,7 @@ final class PacketHandler extends TinyProtocol {
     }
 
     @Override
-    public Object onPacketOutAsync(@Nullable Player receiver, Channel channel, Object packet) {
+    protected @Nullable Object onPacketSendAsync(@Nullable Player receiver, @NotNull Channel channel, @NotNull Object packet) {
         PacketSendEvent event = new PacketSendEvent(receiver, channel, packet);
         manager.callSendEvent(event);
 
@@ -52,7 +49,7 @@ final class PacketHandler extends TinyProtocol {
     }
 
     @Override
-    public Object onPacketInAsync(@Nullable Player sender, Channel channel, Object packet) {
+    protected @Nullable Object onPacketReceiveAsync(@Nullable Player sender, @NotNull Channel channel, @NotNull Object packet) {
         PacketReceiveEvent event = new PacketReceiveEvent(sender, channel, packet);
         manager.callReceiveEvent(event);
 
@@ -60,7 +57,7 @@ final class PacketHandler extends TinyProtocol {
     }
 
     @Override
-    protected String getHandlerName() {
-        return "PacketInjectorAPI-" + COUNTER.getAndIncrement();
+    protected @NotNull String getIdentifier() {
+        return getPlugin().getName();
     }
 }

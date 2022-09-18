@@ -5,7 +5,7 @@
 
     <groupId>com.frengor</groupId>
     <artifactId>packetinjectorapi</artifactId>
-    <version>3.0.2</version>
+    <version>3.1.0</version>
     <packaging>jar</packaging>
 
     <name>PacketInjectorAPI</name>
@@ -77,7 +77,7 @@
         <!--This adds the Spigot API artifact to the build -->
         <dependency>
             <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
+            <artifactId>spigot</artifactId>
             <version>1.19.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
@@ -107,11 +107,11 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- TinyProtocol Updated for 1.19.x -->
+        <!-- LightInjector -->
         <dependency>
             <groupId>com.frengor</groupId>
-            <artifactId>tinyprotocol</artifactId>
-            <version>1.1-SNAPSHOT</version>
+            <artifactId>lightinjector</artifactId>
+            <version>1.0.0</version>
             <scope>compile</scope>
         </dependency>
 
@@ -176,8 +176,8 @@
                             <shadedPattern>com.fren_gor.packetInjectorAPI.libs.bstats</shadedPattern>
                         </relocation>
                         <relocation>
-                            <pattern>com.comphenix.tinyprotocol</pattern>
-                            <shadedPattern>com.fren_gor.packetInjectorAPI.libs.tinyProtocol</shadedPattern>
+                            <pattern>com.fren_gor.lightInjector</pattern>
+                            <shadedPattern>com.fren_gor.packetInjectorAPI.libs.lightInjector</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
