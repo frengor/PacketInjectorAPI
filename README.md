@@ -21,7 +21,7 @@ Library for working with minecraft packets
 <dependency>
     <groupId>com.frengor</groupId>
     <artifactId>packetinjectorapi</artifactId>
-    <version>3.1.0</version>
+    <version>3.1.1</version>
     <scope>provided</scope>
 </dependency>
 ```
