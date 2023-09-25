@@ -70,7 +70,7 @@ public class PacketEventManagerTest {
     static void init() throws Exception {
         Class.forName("com.fren_gor.lightInjector.LightInjector");
 
-        assertTrue(initialized, "Cannot load TinyProtocol dummy class for tests.");
+        assertTrue(initialized, "Cannot load LightInjector dummy class for tests.");
 
         internalListenerConstructor = Class.forName("com.fren_gor.packetInjectorAPI.api.PacketEventManager$RegisteredListener").getConstructor(PacketListener.class);
         internalListenerConstructor.setAccessible(true);
