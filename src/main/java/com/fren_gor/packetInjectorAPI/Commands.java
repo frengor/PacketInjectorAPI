@@ -69,8 +69,11 @@ class Commands implements CommandExecutor, TabCompleter {
             "PacketPlayOutMultiBlockChange",
             "PacketPlayOutUnloadChunk",
             "PacketPlayOutBlockChange",
-            "ClientboundLevelChunkWithLightPacket"
-    ));
+            "ClientboundLevelChunkWithLightPacket",
+            "ClientboundChunkBatchStartPacket",
+            "ServerboundChunkBatchReceivedPacket",
+            "ClientboundChunkBatchFinishedPacket"
+            ));
     private static final List<String> PACKET_LOGGER_TAB_COMPLETER = Arrays.asList("start", "stop", "status", "filter");
     private static final List<String> FILTER_TAB_COMPLETER = Arrays.asList("allow", "deny", "list", "reset", "clear");
     private static final List<String> LIST_OPTIONS_TAB_COMPLETER = Arrays.asList("add", "remove", "clear", "reset");
