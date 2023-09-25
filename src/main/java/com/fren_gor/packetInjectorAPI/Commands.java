@@ -32,6 +32,7 @@ import org.bukkit.command.TabCompleter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -39,6 +40,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -78,6 +80,26 @@ class Commands implements CommandExecutor, TabCompleter {
     private static final List<String> FILTER_TAB_COMPLETER = Arrays.asList("allow", "deny", "list", "reset", "clear");
     private static final List<String> LIST_OPTIONS_TAB_COMPLETER = Arrays.asList("add", "remove", "clear", "reset");
 
+    private static final Method BUNDLE_PACKETS_AS_ITERABLE;
+
+    static {
+        Method m = null;
+        if (ReflectionUtil.VERSION > 19 || (ReflectionUtil.VERSION == 19 && ReflectionUtil.RELEASE >= 3)) {
+            Class<?> bundlePacket = ReflectionUtil.getNMSClass("BundlePacket", "network.protocol");
+            if (bundlePacket != null) {
+                m = Arrays.stream(bundlePacket.getDeclaredMethods())
+                        .filter(method -> method.getParameterCount() == 0 && method.getReturnType() == Iterable.class)
+                        .findFirst()
+                        .orElse(null);
+
+                if (m != null) {
+                    m.setAccessible(true);
+                }
+            }
+        }
+        BUNDLE_PACKETS_AS_ITERABLE = m;
+    }
+
     private final PacketInjectorPlugin plugin;
     private final PacketListener packetListener;
     private final Set<String> allow = new HashSet<>();
@@ -100,10 +122,23 @@ class Commands implements CommandExecutor, TabCompleter {
                     b.append(event.getPlayer().getName()).append(' ');
                 }
                 b.append("<- ");
-                if (event.getPacketName().length() > 5)
-                    b.append(event.getPacketName());
-                else
-                    b.append(event.getPacket().getClass().getName());
+                if (BUNDLE_PACKETS_AS_ITERABLE != null && "ClientboundBundlePacket".equals(event.getPacketName())) {
+                    // Bundle, print also the packets it contains
+                    try {
+                        Iterable<?> packets = (Iterable<?>) BUNDLE_PACKETS_AS_ITERABLE.invoke(event.getPacket());
+                        b.append(event.getPacketName());
+                        StringJoiner joiner = new StringJoiner(", ", " (", ")");
+                        for (Object packet : packets) {
+                            appendPacketName(packet.getClass().getSimpleName(), packet, joiner);
+                        }
+                        b.append(joiner);
+                    } catch (ReflectiveOperationException e) {
+                        logger.log(Level.SEVERE, "An error occurred while getting the packets inside a ClientboundBundlePacket", e);
+                        return;
+                    }
+                } else {
+                    appendPacketName(event.getPacketName(), event.getPacket(), b);
+                }
                 logger.info(b.toString());
             }
 
@@ -117,13 +152,24 @@ class Commands implements CommandExecutor, TabCompleter {
                     b.append(event.getPlayer().getName()).append(' ');
                 }
                 b.append("-> ");
-                if (event.getPacketName().length() > 5)
-                    b.append(event.getPacketName());
-                else
-                    b.append(event.getPacket().getClass().getName());
+                appendPacketName(event.getPacketName(), event.getPacket(), b);
                 logger.info(b.toString());
             }
         };
+    }
+
+    private static void appendPacketName(String packetName, Object packet, StringBuilder b) {
+        if (packetName.length() > 5)
+            b.append(packetName);
+        else
+            b.append(packet.getClass().getName());
+    }
+
+    private static void appendPacketName(String packetName, Object packet, StringJoiner j) {
+        if (packetName.length() > 5)
+            j.add(packetName);
+        else
+            j.add(packet.getClass().getName());
     }
 
     private boolean isToSkip(String name) {
