@@ -84,17 +84,15 @@ class Commands implements CommandExecutor, TabCompleter {
 
     static {
         Method m = null;
-        if (ReflectionUtil.VERSION > 19 || (ReflectionUtil.VERSION == 19 && ReflectionUtil.RELEASE >= 3)) {
-            Class<?> bundlePacket = ReflectionUtil.getNMSClass("BundlePacket", "network.protocol");
-            if (bundlePacket != null) {
-                m = Arrays.stream(bundlePacket.getDeclaredMethods())
-                        .filter(method -> method.getParameterCount() == 0 && method.getReturnType() == Iterable.class)
-                        .findFirst()
-                        .orElse(null);
+        Class<?> bundlePacket = ReflectionUtil.getNMSClass("BundlePacket", "BundlePacket", "network.protocol");
+        if (bundlePacket != null) {
+            m = Arrays.stream(bundlePacket.getDeclaredMethods())
+                    .filter(method -> method.getParameterCount() == 0 && method.getReturnType() == Iterable.class)
+                    .findFirst()
+                    .orElse(null);
 
-                if (m != null) {
-                    m.setAccessible(true);
-                }
+            if (m != null) {
+                m.setAccessible(true);
             }
         }
         BUNDLE_PACKETS_AS_ITERABLE = m;

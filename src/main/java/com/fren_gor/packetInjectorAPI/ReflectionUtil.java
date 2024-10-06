@@ -39,24 +39,16 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class ReflectionUtil {
 
     /**
-     * The complete NMS version (like {@code v1_17_R1}).
+     * The MC version.
+     * <p>For example, for {@code 1.17.1} it is {@code 17}.
      */
-    public static final String COMPLETE_VERSION = Bukkit.getServer().getClass().getName().split("\\.")[3];
+    public static final int VERSION = Integer.parseInt(Bukkit.getBukkitVersion().split("-")[0].split("\\.")[1]);
 
-    /**
-     * The NMS version.
-     * <p>For example, for {@code v1_17_R1} it is {@code 17}.
-     */
-    public static final int VERSION = Integer.parseInt(COMPLETE_VERSION.split("_")[1]);
-
-    /**
-     * The NMS release.
-     * <p>For example, for {@code v1_17_R1} it is {@code 1}.
-     */
-    public static final int RELEASE = Integer.parseInt(COMPLETE_VERSION.split("R")[1]);
+    private static final boolean IS_1_17 = VERSION >= 17;
+    private static final String COMPLETE_VERSION = IS_1_17 ? null : Bukkit.getServer().getClass().getName().split("\\.")[3];
+    private static final String CRAFTBUKKIT_PACKAGE = Bukkit.getServer().getClass().getPackage().getName();
 
     private static final Map<String, Map<String, Field>> fields = new ConcurrentHashMap<>();
-    private static final boolean IS_1_17 = VERSION >= 17;
 
     /**
      * Build a new class getting the proper constructor from parameters
@@ -66,7 +58,6 @@ public final class ReflectionUtil {
      * @return The new instance
      */
     public static Object newInstance(Class<?> clazz, Object... parameters) {
-
         Class<?>[] classes = new Class<?>[parameters.length];
 
         for (int i = 0; i < parameters.length; i++) {
@@ -81,7 +72,6 @@ public final class ReflectionUtil {
             e.printStackTrace();
             return null;
         }
-
     }
 
     /**
@@ -145,7 +135,6 @@ public final class ReflectionUtil {
     }
 
     private static boolean setField(Object object, Class<?> c, String field, Object newValue) {
-
         if (fields.containsKey(c.getCanonicalName())) {
             Map<String, Field> fs = fields.get(c.getCanonicalName());
             if (fs.containsKey(field)) {
@@ -191,7 +180,6 @@ public final class ReflectionUtil {
         }
 
         return true;
-
     }
 
     /**
@@ -220,7 +208,6 @@ public final class ReflectionUtil {
 
     @Nullable
     private static Object getField(Object object, Class<?> c, String field) {
-
         if (fields.containsKey(c.getCanonicalName())) {
             Map<String, Field> fs = fields.get(c.getCanonicalName());
             if (fs.containsKey(field)) {
@@ -263,7 +250,6 @@ public final class ReflectionUtil {
         } catch (ReflectiveOperationException e) {
             return null;
         }
-
     }
 
     /**
@@ -286,18 +272,24 @@ public final class ReflectionUtil {
     /**
      * Gets an NMS class using reflections.
      *
-     * @param name The NMS class name.
+     * @param spigotMappedName The Spigot-mapped NMS class name.
+     * @param mojangMappedName The Mojang-mapped NMS class name.
      * @param mcPackage The NMS class package (relative to {@code net.minecraft}). Used on 1.17+.
      * @return The required NMS class, or {@code null} if the class couldn't be found.
      */
     @Nullable
-    public static Class<?> getNMSClass(String name, String mcPackage) {
-        String path = "net.minecraft." + (IS_1_17 ? mcPackage : "server." + COMPLETE_VERSION) + '.' + name;
+    public static Class<?> getNMSClass(String spigotMappedName, String mojangMappedName, String mcPackage) {
+        String path = "net.minecraft." + (IS_1_17 ? mcPackage : "server." + COMPLETE_VERSION) + '.';
+        // Try both Spigot-mapped and Mojang-mapped names
         try {
-            return Class.forName(path);
-        } catch (ClassNotFoundException e) {
-            Bukkit.getLogger().info("[ReflectionUtil] Can't find NMS Class! (" + path + ")");
-            return null;
+            return Class.forName(path + spigotMappedName);
+        } catch (ClassNotFoundException e1) {
+            try {
+                return Class.forName(path + mojangMappedName);
+            } catch (ClassNotFoundException e2) {
+                Bukkit.getLogger().info("[ReflectionUtil] Can't find NMS Class! (" + path + ")");
+                return null;
+            }
         }
     }
 
@@ -309,7 +301,7 @@ public final class ReflectionUtil {
      */
     @Nullable
     public static Class<?> getCBClass(String name) {
-        String cb = "org.bukkit.craftbukkit." + COMPLETE_VERSION + "." + name;
+        String cb = CRAFTBUKKIT_PACKAGE + "." + name;
         try {
             return Class.forName(cb);
         } catch (ClassNotFoundException e) {
