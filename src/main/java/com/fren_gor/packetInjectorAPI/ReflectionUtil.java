@@ -287,7 +287,7 @@ public final class ReflectionUtil {
             try {
                 return Class.forName(path + mojangMappedName);
             } catch (ClassNotFoundException e2) {
-                Bukkit.getLogger().info("[ReflectionUtil] Can't find NMS Class! (" + path + ")");
+                Bukkit.getLogger().info("[ReflectionUtil] Can't find NMS Class! (" + path + spigotMappedName + ")");
                 return null;
             }
         }
