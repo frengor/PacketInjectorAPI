@@ -42,7 +42,23 @@ public final class ReflectionUtil {
      * The MC version.
      * <p>For example, for {@code 1.17.1} it is {@code 17}.
      */
-    public static final int VERSION = Integer.parseInt(Bukkit.getBukkitVersion().split("-")[0].split("\\.")[1]);
+    public static final int VERSION;
+
+    /**
+     * The MC minor version.
+     * <p>For example, for {@code 1.19.4} it is {@code 4}.
+     */
+    public static final int MINOR_VERSION;
+
+    static {
+        String[] split = Bukkit.getBukkitVersion().split("-")[0].split("\\.");
+        VERSION = Integer.parseInt(split[1]);
+        if (split.length >= 3) { // Use >= just in case
+            MINOR_VERSION = Integer.parseInt(split[2]);
+        } else {
+            MINOR_VERSION = 0;
+        }
+    }
 
     private static final boolean IS_1_17 = VERSION >= 17;
     private static final String COMPLETE_VERSION = IS_1_17 ? null : Bukkit.getServer().getClass().getName().split("\\.")[3];
