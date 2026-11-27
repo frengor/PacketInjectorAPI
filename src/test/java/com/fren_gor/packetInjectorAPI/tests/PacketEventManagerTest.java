@@ -46,6 +46,7 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -121,8 +122,9 @@ public class PacketEventManagerTest {
         for (int i = 0; i < listeners.length; i++)
             internalTestRegister(i);
 
-        packetHandler.onPacketSendAsync(null, new SimpleChannel(), new DummyPacket());
-        packetHandler.onPacketReceiveAsync(null, new SimpleChannel(), new DummyPacket());
+        UUID uuid = UUID.randomUUID();
+        packetHandler.onPacketSendAsync(uuid, null, new SimpleChannel(), new DummyPacket());
+        packetHandler.onPacketReceiveAsync(uuid, null, new SimpleChannel(), new DummyPacket());
 
         for (int i = 0; i < listeners.length; i++)
             internalCallTest(i);

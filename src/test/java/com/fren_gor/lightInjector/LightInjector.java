@@ -7,6 +7,8 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
+
 public abstract class LightInjector {
 
     static {
@@ -17,8 +19,8 @@ public abstract class LightInjector {
     }
 
     // Keep these methods public since they must be called during tests by PacketEventManagerTest
-    public abstract @Nullable Object onPacketSendAsync(@Nullable Player receiver, @NotNull Channel channel, @NotNull Object packet);
-    public abstract @Nullable Object onPacketReceiveAsync(@Nullable Player sender, @NotNull Channel channel, @NotNull Object packet);
+    public abstract @Nullable Object onPacketSendAsync(@NotNull UUID receiverUuid, @Nullable Player receiver, @NotNull Channel channel, @NotNull Object packet);
+    public abstract @Nullable Object onPacketReceiveAsync(@NotNull UUID senderUuid, @Nullable Player sender, @NotNull Channel channel, @NotNull Object packet);
 
     protected abstract @NotNull String getIdentifier();
 }

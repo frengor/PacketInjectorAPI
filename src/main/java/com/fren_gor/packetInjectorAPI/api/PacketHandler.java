@@ -31,6 +31,8 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
+
 final class PacketHandler extends LightInjector {
 
     private final PacketEventManager manager;
@@ -41,7 +43,7 @@ final class PacketHandler extends LightInjector {
     }
 
     @Override
-    protected @Nullable Object onPacketSendAsync(@Nullable Player receiver, @NotNull Channel channel, @NotNull Object packet) {
+    protected @Nullable Object onPacketSendAsync(@NotNull UUID receiverUuuid, @Nullable Player receiver, @NotNull Channel channel, @NotNull Object packet) {
         PacketSendEvent event = new PacketSendEvent(receiver, channel, packet);
         manager.callSendEvent(event);
 
@@ -49,7 +51,7 @@ final class PacketHandler extends LightInjector {
     }
 
     @Override
-    protected @Nullable Object onPacketReceiveAsync(@Nullable Player sender, @NotNull Channel channel, @NotNull Object packet) {
+    protected @Nullable Object onPacketReceiveAsync(@NotNull UUID senderUuid, @Nullable Player sender, @NotNull Channel channel, @NotNull Object packet) {
         PacketReceiveEvent event = new PacketReceiveEvent(sender, channel, packet);
         manager.callReceiveEvent(event);
 
