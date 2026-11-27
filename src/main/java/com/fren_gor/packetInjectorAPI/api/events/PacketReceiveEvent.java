@@ -28,6 +28,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Event fired when a packet is received from a {@link Player}.
@@ -36,6 +37,7 @@ import java.util.Objects;
  */
 public final class PacketReceiveEvent extends PacketEvent {
 
+    private final UUID uuid;
     private final Player player;
     private final Channel channel;
     private final String packetName;
@@ -44,15 +46,26 @@ public final class PacketReceiveEvent extends PacketEvent {
     /**
      * Creates a new {@code PacketReceiveEvent}.
      *
+     * @param uuid The {@link UUID} of the player who sent the packet.
      * @param player The player who sent the packet, or {@code null} if the packet is a login, status, or handshake packet.
      * @param channel The netty channel.
      * @param packet The packet.
      */
-    public PacketReceiveEvent(@Nullable Player player, Channel channel, Object packet) {
+    public PacketReceiveEvent(UUID uuid, @Nullable Player player, Channel channel, Object packet) {
+        this.uuid = Objects.requireNonNull(uuid, "UUID is null.");
         this.player = player;
         this.channel = Objects.requireNonNull(channel, "Channel is null.");
         this.packet = Objects.requireNonNull(packet, "Packet is null.");
         this.packetName = packet.getClass().getSimpleName();
+    }
+
+    /**
+     * Gets the {@link UUID} of the player who sent the packet.
+     *
+     * @return The {@link UUID} of the player who sent the packet.
+     */
+    public UUID getUniqueId() {
+        return uuid;
     }
 
     /**

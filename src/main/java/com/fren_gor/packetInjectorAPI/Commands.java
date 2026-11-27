@@ -119,6 +119,7 @@ class Commands implements CommandExecutor, TabCompleter {
                     return;
                 }
                 StringBuilder b = new StringBuilder();
+                b.append('[').append(event.getUniqueId()).append("] ");
                 if (event.getPlayer() != null) {
                     b.append(event.getPlayer().getName()).append(' ');
                 }
@@ -149,6 +150,7 @@ class Commands implements CommandExecutor, TabCompleter {
                     return;
                 }
                 StringBuilder b = new StringBuilder();
+                b.append('[').append(event.getUniqueId()).append("] ");
                 if (event.getPlayer() != null) {
                     b.append(event.getPlayer().getName()).append(' ');
                 }
