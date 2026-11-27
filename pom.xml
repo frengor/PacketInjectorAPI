@@ -5,17 +5,17 @@
 
     <groupId>com.frengor</groupId>
     <artifactId>packetinjectorapi</artifactId>
-    <version>3.2.1</version>
+    <version>3.3.0</version>
     <packaging>jar</packaging>
 
     <name>PacketInjectorAPI</name>
-    <description>Library for working with minecraft packets</description>
+    <description>Library for working with Minecraft packets</description>
     <url>https://github.com/frengor/PacketInjectorAPI</url>
 
     <developers>
         <developer>
             <id>fren_gor</id>
-            <url>http://www.frengor.com</url>
+            <url>https://www.frengor.com</url>
         </developer>
     </developers>
 
@@ -218,7 +218,7 @@
                     </links>
                     <bottom>
                         <!-- Hacky way to insert custom css without modifying the full css style file -->
-                        <![CDATA[<style>main a[href*="://"]::after{content: none;}</style>Copyright &#169; {inceptionYear}&#x2013;{currentYear}. All rights reserved.]]>
+                        <![CDATA[<style>main a[href*="://"]::after{content: none;}</style>Copyright &#169; {inceptionYear}&#x2013;{currentYear} fren_gor. All rights reserved.]]>
                     </bottom>
                 </configuration>
             </plugin>
