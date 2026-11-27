@@ -39,8 +39,16 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class ReflectionUtil {
 
     /**
+     * The MC major version.
+     * <p>For example, for {@code 1.17.1} it is {@code 1}.
+     * For {@code 26.1.2} it is {@code 26}.
+     */
+    public static final int MAJOR_VERSION;
+
+    /**
      * The MC version.
      * <p>For example, for {@code 1.17.1} it is {@code 17}.
+     * For {@code 26.1.2} it is {@code 1}.
      */
     public static final int VERSION;
 
@@ -51,7 +59,15 @@ public final class ReflectionUtil {
     public static final int MINOR_VERSION;
 
     static {
-        String[] split = Bukkit.getBukkitVersion().split("-")[0].split("\\.");
+        String mcVersion;
+        try {
+            // Paper-only method
+            mcVersion = (String) Bukkit.class.getDeclaredMethod("getMinecraftVersion").invoke(null);
+        } catch (ReflectiveOperationException e) {
+            mcVersion = Bukkit.getBukkitVersion().split("-")[0];
+        }
+        String[] split = mcVersion.split("\\.");
+        MAJOR_VERSION = Integer.parseInt(split[0]);
         VERSION = Integer.parseInt(split[1]);
         if (split.length >= 3) { // Use >= just in case
             MINOR_VERSION = Integer.parseInt(split[2]);
@@ -60,7 +76,7 @@ public final class ReflectionUtil {
         }
     }
 
-    private static final boolean IS_1_17 = VERSION >= 17;
+    private static final boolean IS_1_17 = MAJOR_VERSION >= 26 || (MAJOR_VERSION == 1 && VERSION >= 17);
     private static final String COMPLETE_VERSION = IS_1_17 ? null : Bukkit.getServer().getClass().getName().split("\\.")[3];
     private static final String CRAFTBUKKIT_PACKAGE = Bukkit.getServer().getClass().getPackage().getName();
 

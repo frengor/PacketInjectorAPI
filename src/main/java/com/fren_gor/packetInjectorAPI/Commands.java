@@ -85,7 +85,9 @@ class Commands implements CommandExecutor, TabCompleter {
     static {
         Method m = null;
         Class<?> bundlePacket = null;
-        if (ReflectionUtil.VERSION > 19 || (ReflectionUtil.VERSION == 19 && ReflectionUtil.MINOR_VERSION >= 4)) {
+        if (ReflectionUtil.MAJOR_VERSION >= 26
+            || (ReflectionUtil.MAJOR_VERSION == 1 && ReflectionUtil.VERSION > 19)
+            || (ReflectionUtil.MAJOR_VERSION == 1 && ReflectionUtil.VERSION == 19 && ReflectionUtil.MINOR_VERSION >= 4)) {
             bundlePacket = ReflectionUtil.getNMSClass("BundlePacket", "BundlePacket", "network.protocol");
         }
         if (bundlePacket != null) {
